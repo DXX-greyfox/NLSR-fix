@@ -112,7 +112,7 @@
    m_scheduler.schedule(ndn::time::seconds(m_confParam.getInfoInterestInterval()),
                         [this, neighbor] { sendHelloInterest(neighbor); });
  }
- 
+ //处理收到的hello interest
  void
  HelloProtocol::processInterest(const ndn::Name& name,
                                 const ndn::Interest& interest)
@@ -152,6 +152,8 @@
      auto adjacent = m_adjacencyList.findAdjacent(neighbor);
      // If this neighbor was previously inactive, send our own hello interest, too
      if (adjacent->getStatus() == Adjacent::STATUS_INACTIVE) {
+       // 新增：临时恢复路由机制
+       restoreRouteForHelloRecovery(neighbor);
        // We can only do that if the neighbor currently has a face.
        if (adjacent->getFaceId() != 0) {
          // interest name: /<neighbor>/NLSR/INFO/<router>
@@ -164,7 +166,65 @@
      }
    }
  }
+ //2025.09.22 新增处理hello interest超时后的路由恢复机制
+ void
+ HelloProtocol::restoreRouteForHelloRecovery(const ndn::Name& neighbor)
+{
+  NLSR_LOG_DEBUG("restoreRouteForHelloRecovery called for: " << neighbor);
+  
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    NLSR_LOG_WARN("HELLO_RECOVERY: Neighbor not found in adjacency list: " << neighbor);
+    return;
+  }
+
+  // Basic safety checks
+  if (adjacent->getStatus() != Adjacent::STATUS_INACTIVE) {
+    NLSR_LOG_DEBUG("HELLO_RECOVERY: Neighbor status not INACTIVE, skipping: " << neighbor);
+    return;
+  }
+
+  if (adjacent->getFaceId() == 0) {
+    NLSR_LOG_WARN("HELLO_RECOVERY: Invalid face ID for neighbor: " << neighbor);
+    return;
+  }
+
+  // Rate limiting check
+  static std::map<ndn::Name, ndn::time::steady_clock::time_point> s_lastRestoreTime;
+  auto now = ndn::time::steady_clock::now();
+  
+  auto it = s_lastRestoreTime.find(neighbor);
+  if (it != s_lastRestoreTime.end()) {
+    auto timeSince = now - it->second;
+    if (timeSince < ndn::time::seconds(5)) {
+      NLSR_LOG_DEBUG("HELLO_RECOVERY: Rate limiting - ignoring rapid recovery for " << neighbor);
+      return;
+    }
+  }
+  s_lastRestoreTime[neighbor] = now;
+
+  try {
+    // Create temporary nexthop list with only this neighbor
+    NexthopList tempHops;
+    NextHop tempHop(adjacent->getFaceUri(), adjacent->getOriginalLinkCost());  // 使用原始配置成本
+    tempHops.addNextHop(tempHop);
+
+    NLSR_LOG_INFO("HELLO_RECOVERY: Temporarily restoring route for " << neighbor 
+                  << " via " << adjacent->getFaceUri() 
+                  << " cost " << adjacent->getOriginalLinkCost());
+
+    // Update FIB with temporary route - this will call registerPrefix internally
+    m_nlsr.getFib().update(neighbor, tempHops);
+    
+    NLSR_LOG_DEBUG("HELLO_RECOVERY: Temporary route restoration completed for " << neighbor);
+
+  } catch (const std::exception& e) {
+    NLSR_LOG_ERROR("HELLO_RECOVERY: Exception during route restore for " 
+                   << neighbor << ": " << e.what());
+  }
+}
  
+ /*2025.9.16 此处函数逻辑有问题，无法清理超时的interest*/
  void
  HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
  {
@@ -176,7 +236,7 @@
    }
    ndn::Name neighbor = interestName.getPrefix(-3);
    NLSR_LOG_DEBUG("Neighbor: " << neighbor);
-   m_adjacencyList.incrementTimedOutInterestCount(neighbor);
+   m_adjacencyList.incrementTimedOutInterestCount(neighbor);//增加超时次数
  
    Adjacent::Status status = m_adjacencyList.getStatusOfNeighbor(neighbor);
  
@@ -184,11 +244,8 @@
    NLSR_LOG_DEBUG("Status: " << status);
    NLSR_LOG_DEBUG("Info Interest Timed out: " << infoIntTimedOutCount);
  
-   // Emit signal for Hello timeout (Option A)
-  onTimeout(neighbor, infoIntTimedOutCount);
-
-  
- 
+   // Emit signal for Hello timeout (Option A) 发送事件信号告诉LCM,这个时候LCM会怎么处理
+   onTimeout(neighbor, infoIntTimedOutCount);
    if (infoIntTimedOutCount < m_confParam.getInterestRetryNumber()) {
      // interest name: /<neighbor>/NLSR/INFO/<router>
      ndn::Name interestName(neighbor);
@@ -199,7 +256,7 @@
      expressInterest(interestName, m_confParam.getInterestResendTime());
    }
    else if (status == Adjacent::STATUS_ACTIVE) {
-     m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);
+     m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);//设定此时的状态为INACTIVE
  
      NLSR_LOG_DEBUG("Neighbor: " << neighbor << " status changed to INACTIVE");
  
@@ -207,9 +264,9 @@
     onNeighborStatusChanged(neighbor, Adjacent::STATUS_INACTIVE);
  
      if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
-       m_routingTable.scheduleRoutingTableCalculation();
+       m_routingTable.scheduleRoutingTableCalculation();//触发路由表计算
      }
-     else {
+     else {//触发lsa重建
        m_lsdb.scheduleAdjLsaBuild();
      }
    }

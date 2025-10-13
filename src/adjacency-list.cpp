@@ -129,22 +129,29 @@ AdjacencyList::getAdjList() const
 {
   return m_adjList;
 }
-
+//测试adj是否允许重建
 bool
 AdjacencyList::isAdjLsaBuildable(const uint32_t interestRetryNo) const
 {
   uint32_t nTimedOutNeighbors = 0;
+  NLSR_LOG_DEBUG("=== Checking isAdjLsaBuildable ===");
+  NLSR_LOG_DEBUG("Interest retry threshold: " << interestRetryNo);
 
   for (const auto& adjacency : m_adjList) {
     if (adjacency.getStatus() == Adjacent::STATUS_ACTIVE) {
+      NLSR_LOG_DEBUG("*** Found ACTIVE neighbor, returning true ***");
       return true;
     }
     else if (adjacency.getInterestTimedOutNo() >= interestRetryNo) {
       nTimedOutNeighbors++;
     }
   }
-
-  return nTimedOutNeighbors == m_adjList.size();
+  /******新增调试部分9.17*****/
+  bool result = (nTimedOutNeighbors == m_adjList.size());
+  NLSR_LOG_DEBUG("TimedOut neighbors: " << nTimedOutNeighbors 
+                << "/" << m_adjList.size() << ", Result: " << result);
+  /***/
+  return result;
 }
 
 int32_t

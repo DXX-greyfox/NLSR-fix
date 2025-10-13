@@ -371,8 +371,21 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
   static inline const ndn::time::steady_clock::time_point DEFAULT_LSA_RETRIEVAL_DEADLINE =
     ndn::time::steady_clock::time_point::min();
-};
 
-} // namespace nlsr
+public:
+  enum class AdjLsaBuildType
+  {
+    REGULAR,        // 常规请求
+    COST_UPDATE,    // 成本更新  
+    NEIGHBOR_DOWN   // 邻居失联
+  };
+
+  void scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType);
+private:
+  AdjLsaBuildType m_currentBuildType{AdjLsaBuildType::REGULAR};
+  AdjLsaBuildType m_pendingBuildType{AdjLsaBuildType::REGULAR};
+
+}; // namespace nlsr
+}
 
 #endif // NLSR_LSDB_HPP

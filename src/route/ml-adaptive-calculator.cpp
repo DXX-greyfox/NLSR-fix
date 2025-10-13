@@ -504,7 +504,7 @@ MLAdaptiveCalculator::adaptLearningRate()
   if (m_statistics.averagePredictionError > 0.3) {
     m_learningRate = std::min(0.05, m_learningRate * 1.1); // 误差大时加速学习
   } else if (m_statistics.averagePredictionError < 0.1) {
-    m_learningRate = std::max(0.001, m_learningRate * 0.9); // 误差小时稳定学习
+    m_learningRate = std::max(0.001, m_learningRate * 0.90); // 误差小时稳定学习
   }
 }
 

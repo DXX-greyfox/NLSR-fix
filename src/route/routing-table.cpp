@@ -8,7 +8,6 @@
 #include "name-map.hpp"
 #include "routing-calculator.hpp"
 #include "routing-table-entry.hpp"
-// ✅ 关键原则：在cpp文件中包含完整定义，避免头文件复杂性
 #include "load-aware-routing-calculator.hpp"
 #include "ml-adaptive-calculator.hpp"  // 注意：文件名要与实际文件名一致
 
@@ -90,7 +89,7 @@ void RoutingTable::calculate()
   NLSR_LOG_TRACE("Calculating routing table");
 
   if (m_isRoutingTableCalculating == false) {
-    m_isRoutingTableCalculating = true;
+    m_isRoutingTableCalculating = true;//开启算法计算标志位
 
     // ✅ 教学要点：算法优先级设计的考虑
     // ML自适应算法优先级最高，因为它能学习和适应网络变化
@@ -102,6 +101,7 @@ void RoutingTable::calculate()
     }
     else if (m_confParam.getLoadAwareRouting()) {
       NLSR_LOG_INFO("Using load-aware routing algorithm");
+      //NLSR_LOG_INFO("Starting!")
       calculateLoadAwareRoutingTable();
     }
     else if (m_hyperbolicState == HYPERBOLIC_STATE_OFF) {

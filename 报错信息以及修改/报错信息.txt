@@ -1,0 +1,1387 @@
+TablePoolEntry&, const nlsr::RoutingTablePoolEntry&)’
+  107 | operator==(const RoutingTablePoolEntry& lhs, const RoutingTablePoolEntry& rhs);
+      | ^~~~~~~~
+../src/route/routing-table-pool-entry.hpp:107:41: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const nlsr::RoutingTablePoolEntry&’
+  107 | operator==(const RoutingTablePoolEntry& lhs, const RoutingTablePoolEntry& rhs);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from ../src/route/name-prefix-table.hpp:25,
+                 from ../src/route/routing-table.hpp:16,
+                 from ../src/link-cost-manager.hpp:27,
+                 from ../src/link-cost-manager.cpp:1:
+../src/route/name-prefix-table-entry.hpp:124:1: note: candidate: ‘bool nlsr::operator==(const nlsr::NamePrefixTableEntry&, const nlsr::NamePrefixTableEntry&)’
+  124 | operator==(const NamePrefixTableEntry& lhs, const NamePrefixTableEntry& rhs);
+      | ^~~~~~~~
+../src/route/name-prefix-table-entry.hpp:124:40: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const nlsr::NamePrefixTableEntry&’
+  124 | operator==(const NamePrefixTableEntry& lhs, const NamePrefixTableEntry& rhs);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+../src/route/name-prefix-table-entry.hpp:127:1: note: candidate: ‘bool nlsr::operator==(const nlsr::NamePrefixTableEntry&, const ndn::Name&)’
+  127 | operator==(const NamePrefixTableEntry& lhs, const ndn::Name& rhs);
+      | ^~~~~~~~
+../src/route/name-prefix-table-entry.hpp:127:40: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const nlsr::NamePrefixTableEntry&’
+  127 | operator==(const NamePrefixTableEntry& lhs, const ndn::Name& rhs);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from /usr/local/include/ndn-cxx/data.hpp:30,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/local/include/ndn-cxx/signature-info.hpp:255:1: note: candidate: ‘bool ndn::operator==(const ndn::SignatureInfo&, const ndn::SignatureInfo&)’
+  255 | operator==(const SignatureInfo& lhs, const SignatureInfo& rhs);
+      | ^~~~~~~~
+/usr/local/include/ndn-cxx/signature-info.hpp:240:35: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const ndn::SignatureInfo&’
+  240 |   operator==(const SignatureInfo& lhs, const SignatureInfo& rhs);
+      |              ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/local/include/ndn-cxx/data.hpp:406:1: note: candidate: ‘bool ndn::operator==(const ndn::Data&, const ndn::Data&)’
+  406 | operator==(const Data& lhs, const Data& rhs);
+      | ^~~~~~~~
+/usr/local/include/ndn-cxx/data.hpp:406:24: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const ndn::Data&’
+  406 | operator==(const Data& lhs, const Data& rhs);
+      |            ~~~~~~~~~~~~^~~
+In file included from /usr/local/include/ndn-cxx/data.hpp:28,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/local/include/ndn-cxx/name.hpp:654:3: note: candidate: ‘bool ndn::operator==(const ndn::Name&, const ndn::Name&)’
+  654 |   operator==(const Name& lhs, const Name& rhs) noexcept
+      |   ^~~~~~~~
+/usr/local/include/ndn-cxx/name.hpp:654:26: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const ndn::Name&’
+  654 |   operator==(const Name& lhs, const Name& rhs) noexcept
+      |              ~~~~~~~~~~~~^~~
+In file included from /usr/include/c++/10/bits/stl_algobase.h:64,
+                 from /usr/include/c++/10/bits/specfun.h:45,
+                 from /usr/include/c++/10/cmath:1935,
+                 from ../src/adjacent.hpp:25,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_pair.h:466:5: note: candidate: ‘template<class _T1, class _T2> constexpr bool std::operator==(const std::pair<_T1, _T2>&, const std::pair<_T1, _T2>&)’
+  466 |     operator==(const pair<_T1, _T2>& __x, const pair<_T1, _T2>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_pair.h:466:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::pair<_T1, _T2>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/stl_algobase.h:67,
+                 from /usr/include/c++/10/bits/specfun.h:45,
+                 from /usr/include/c++/10/cmath:1935,
+                 from ../src/adjacent.hpp:25,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_iterator.h:389:5: note: candidate: ‘template<class _Iterator> constexpr bool std::operator==(const std::reverse_iterator<_Iterator>&, const std::reverse_iterator<_Iterator>&)’
+  389 |     operator==(const reverse_iterator<_Iterator>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_iterator.h:389:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::reverse_iterator<_Iterator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/stl_algobase.h:67,
+                 from /usr/include/c++/10/bits/specfun.h:45,
+                 from /usr/include/c++/10/cmath:1935,
+                 from ../src/adjacent.hpp:25,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_iterator.h:427:5: note: candidate: ‘template<class _IteratorL, class _IteratorR> constexpr bool std::operator==(const std::reverse_iterator<_Iterator>&, const std::reverse_iterator<_IteratorR>&)’
+  427 |     operator==(const reverse_iterator<_IteratorL>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_iterator.h:427:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::reverse_iterator<_Iterator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/stl_algobase.h:67,
+                 from /usr/include/c++/10/bits/specfun.h:45,
+                 from /usr/include/c++/10/cmath:1935,
+                 from ../src/adjacent.hpp:25,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_iterator.h:1517:5: note: candidate: ‘template<class _IteratorL, class _IteratorR> constexpr bool std::operator==(const std::move_iterator<_IteratorL>&, const std::move_iterator<_IteratorR>&)’
+ 1517 |     operator==(const move_iterator<_IteratorL>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_iterator.h:1517:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::move_iterator<_IteratorL>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/stl_algobase.h:67,
+                 from /usr/include/c++/10/bits/specfun.h:45,
+                 from /usr/include/c++/10/cmath:1935,
+                 from ../src/adjacent.hpp:25,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_iterator.h:1580:5: note: candidate: ‘template<class _Iterator> constexpr bool std::operator==(const std::move_iterator<_IteratorL>&, const std::move_iterator<_IteratorL>&)’
+ 1580 |     operator==(const move_iterator<_Iterator>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_iterator.h:1580:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::move_iterator<_IteratorL>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/char_traits.h:40,
+                 from /usr/include/c++/10/string:40,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/postypes.h:222:5: note: candidate: ‘template<class _StateT> bool std::operator==(const std::fpos<_StateT>&, const std::fpos<_StateT>&)’
+  222 |     operator==(const fpos<_StateT>& __lhs, const fpos<_StateT>& __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/postypes.h:222:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::fpos<_StateT>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/string:41,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/allocator.h:214:5: note: candidate: ‘template<class _T1, class _T2> bool std::operator==(const std::allocator<_CharT>&, const std::allocator<_T2>&)’
+  214 |     operator==(const allocator<_T1>&, const allocator<_T2>&)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/allocator.h:214:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::allocator<_CharT>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/basic_string.h:48,
+                 from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/string_view:489:5: note: candidate: ‘template<class _CharT, class _Traits> constexpr bool std::operator==(std::basic_string_view<_CharT, _Traits>, std::basic_string_view<_CharT, _Traits>)’
+  489 |     operator==(basic_string_view<_CharT, _Traits> __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/string_view:489:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘std::basic_string_view<_CharT, _Traits>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/basic_string.h:48,
+                 from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/string_view:495:5: note: candidate: ‘template<class _CharT, class _Traits> constexpr bool std::operator==(std::basic_string_view<_CharT, _Traits>, std::__type_identity_t<std::basic_string_view<_CharT, _Traits> >)’
+  495 |     operator==(basic_string_view<_CharT, _Traits> __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/string_view:495:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘std::basic_string_view<_CharT, _Traits>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/basic_string.h:48,
+                 from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/string_view:518:5: note: candidate: ‘template<class _CharT, class _Traits> constexpr bool std::operator==(std::__type_identity_t<std::basic_string_view<_CharT, _Traits> >, std::basic_string_view<_CharT, _Traits>)’
+  518 |     operator==(__type_identity_t<basic_string_view<_CharT, _Traits>> __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/string_view:518:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘ndn::Name’ is not derived from ‘std::basic_string_view<_CharT, _Traits>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/basic_string.h:6175:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> bool std::operator==(const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>&, const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>&)’
+ 6175 |     operator==(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/basic_string.h:6175:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/basic_string.h:6183:5: note: candidate: ‘template<class _CharT> typename __gnu_cxx::__enable_if<std::__is_char<_Tp>::__value, bool>::__type std::operator==(const std::__cxx11::basic_string<_CharT>&, const std::__cxx11::basic_string<_CharT>&)’
+ 6183 |     operator==(const basic_string<_CharT>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/basic_string.h:6183:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::__cxx11::basic_string<_CharT>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/basic_string.h:6197:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> bool std::operator==(const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>&, const _CharT*)’
+ 6197 |     operator==(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/basic_string.h:6197:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/string:55,
+                 from ../src/adjacent.hpp:26,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/basic_string.h:6238:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> bool std::operator==(const _CharT*, const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>&)’
+ 6238 |     operator==(const _CharT* __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/basic_string.h:6238:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   mismatched types ‘const _CharT*’ and ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/node_handle.h:39,
+                 from /usr/include/c++/10/bits/stl_tree.h:72,
+                 from /usr/include/c++/10/map:60,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/optional:1014:5: note: candidate: ‘template<class _Tp, class _Up> constexpr std::__optional_eq_t<_Tp, _Up> std::operator==(const std::optional<_Tp>&, const std::optional<_Up>&)’
+ 1014 |     operator==(const optional<_Tp>& __lhs, const optional<_Up>& __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/10/optional:1014:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::optional<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/node_handle.h:39,
+                 from /usr/include/c++/10/bits/stl_tree.h:72,
+                 from /usr/include/c++/10/map:60,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/optional:1074:5: note: candidate: ‘template<class _Tp> constexpr bool std::operator==(const std::optional<_Tp>&, std::nullopt_t)’
+ 1074 |     operator==(const optional<_Tp>& __lhs, nullopt_t) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/optional:1074:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::optional<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/node_handle.h:39,
+                 from /usr/include/c++/10/bits/stl_tree.h:72,
+                 from /usr/include/c++/10/map:60,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/optional:1085:5: note: candidate: ‘template<class _Tp> constexpr bool std::operator==(std::nullopt_t, const std::optional<_Tp>&)’
+ 1085 |     operator==(nullopt_t, const optional<_Tp>& __rhs) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/optional:1085:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::optional<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/node_handle.h:39,
+                 from /usr/include/c++/10/bits/stl_tree.h:72,
+                 from /usr/include/c++/10/map:60,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/optional:1142:5: note: candidate: ‘template<class _Tp, class _Up> constexpr std::__optional_eq_t<_Tp, _Up> std::operator==(const std::optional<_Tp>&, const _Up&)’
+ 1142 |     operator==(const optional<_Tp>& __lhs, const _Up& __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/10/optional:1142:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::optional<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/node_handle.h:39,
+                 from /usr/include/c++/10/bits/stl_tree.h:72,
+                 from /usr/include/c++/10/map:60,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/optional:1148:5: note: candidate: ‘template<class _Tp, class _Up> constexpr std::__optional_eq_t<_Up, _Tp> std::operator==(const _Up&, const std::optional<_Tp>&)’
+ 1148 |     operator==(const _Up& __lhs, const optional<_Tp>& __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/10/optional:1148:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::optional<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/tuple:39,
+                 from /usr/include/c++/10/bits/stl_map.h:63,
+                 from /usr/include/c++/10/map:61,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/array:253:5: note: candidate: ‘template<class _Tp, long unsigned int _Nm> bool std::operator==(const std::array<_Tp, _Nm>&, const std::array<_Tp, _Nm>&)’
+  253 |     operator==(const array<_Tp, _Nm>& __one, const array<_Tp, _Nm>& __two)
+      |     ^~~~~~~~
+/usr/include/c++/10/array:253:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::array<_Tp, _Nm>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/stl_map.h:63,
+                 from /usr/include/c++/10/map:61,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/tuple:1410:5: note: candidate: ‘template<class ... _TElements, class ... _UElements> constexpr bool std::operator==(const std::tuple<_Tps ...>&, const std::tuple<_Args2 ...>&)’
+ 1410 |     operator==(const tuple<_TElements...>& __t,
+      |     ^~~~~~~~
+/usr/include/c++/10/tuple:1410:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::tuple<_Tps ...>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/map:61,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_map.h:1463:5: note: candidate: ‘template<class _Key, class _Tp, class _Compare, class _Alloc> bool std::operator==(const std::map<_Key, _Tp, _Compare, _Allocator>&, const std::map<_Key, _Tp, _Compare, _Allocator>&)’
+ 1463 |     operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_map.h:1463:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::map<_Key, _Tp, _Compare, _Allocator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/map:62,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:27,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_multimap.h:1128:5: note: candidate: ‘template<class _Key, class _Tp, class _Compare, class _Alloc> bool std::operator==(const std::multimap<_Key, _Tp, _Compare, _Allocator>&, const std::multimap<_Key, _Tp, _Compare, _Allocator>&)’
+ 1128 |     operator==(const multimap<_Key, _Tp, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_multimap.h:1128:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::multimap<_Key, _Tp, _Compare, _Allocator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/memory:83,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unique_ptr.h:753:5: note: candidate: ‘template<class _Tp, class _Dp, class _Up, class _Ep> bool std::operator==(const std::unique_ptr<_Tp, _Dp>&, const std::unique_ptr<_Up, _Ep>&)’
+  753 |     operator==(const unique_ptr<_Tp, _Dp>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unique_ptr.h:753:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::unique_ptr<_Tp, _Dp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/memory:83,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unique_ptr.h:760:5: note: candidate: ‘template<class _Tp, class _Dp> bool std::operator==(const std::unique_ptr<_Tp, _Dp>&, std::nullptr_t)’
+  760 |     operator==(const unique_ptr<_Tp, _Dp>& __x, nullptr_t) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unique_ptr.h:760:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::unique_ptr<_Tp, _Dp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/memory:83,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unique_ptr.h:767:5: note: candidate: ‘template<class _Tp, class _Dp> bool std::operator==(std::nullptr_t, const std::unique_ptr<_Tp, _Dp>&)’
+  767 |     operator==(nullptr_t, const unique_ptr<_Tp, _Dp>& __x) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unique_ptr.h:767:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::unique_ptr<_Tp, _Dp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/shared_ptr.h:52,
+                 from /usr/include/c++/10/memory:84,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/shared_ptr_base.h:1444:5: note: candidate: ‘template<class _Tp1, class _Tp2, __gnu_cxx::_Lock_policy _Lp> bool std::operator==(const std::__shared_ptr<_Tp1, _Lp>&, const std::__shared_ptr<_Tp2, _Lp>&)’
+ 1444 |     operator==(const __shared_ptr<_Tp1, _Lp>& __a,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/shared_ptr_base.h:1444:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::__shared_ptr<_Tp1, _Lp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/shared_ptr.h:52,
+                 from /usr/include/c++/10/memory:84,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/shared_ptr_base.h:1450:5: note: candidate: ‘template<class _Tp, __gnu_cxx::_Lock_policy _Lp> bool std::operator==(const std::__shared_ptr<_Tp, _Lp>&, std::nullptr_t)’
+ 1450 |     operator==(const __shared_ptr<_Tp, _Lp>& __a, nullptr_t) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/shared_ptr_base.h:1450:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::__shared_ptr<_Tp, _Lp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/shared_ptr.h:52,
+                 from /usr/include/c++/10/memory:84,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/shared_ptr_base.h:1470:5: note: candidate: ‘template<class _Tp, __gnu_cxx::_Lock_policy _Lp> bool std::operator==(std::nullptr_t, const std::__shared_ptr<_Tp, _Lp>&)’
+ 1470 |     operator==(nullptr_t, const __shared_ptr<_Tp, _Lp>& __a) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/shared_ptr_base.h:1470:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::__shared_ptr<_Tp, _Lp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/memory:84,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/shared_ptr.h:436:5: note: candidate: ‘template<class _Tp, class _Up> bool std::operator==(const std::shared_ptr<_Tp>&, const std::shared_ptr<_Tp>&)’
+  436 |     operator==(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/shared_ptr.h:436:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::shared_ptr<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/memory:84,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/shared_ptr.h:442:5: note: candidate: ‘template<class _Tp> bool std::operator==(const std::shared_ptr<_Tp>&, std::nullptr_t)’
+  442 |     operator==(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/shared_ptr.h:442:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::shared_ptr<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/memory:84,
+                 from /usr/local/include/ndn-cxx/detail/tag-host.hpp:28,
+                 from /usr/local/include/ndn-cxx/detail/packet-base.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:25,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/shared_ptr.h:463:5: note: candidate: ‘template<class _Tp> bool std::operator==(std::nullptr_t, const std::shared_ptr<_Tp>&)’
+  463 |     operator==(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/shared_ptr.h:463:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::shared_ptr<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/vector:67,
+                 from /usr/local/include/ndn-cxx/encoding/buffer.hpp:31,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:27,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_vector.h:1892:5: note: candidate: ‘template<class _Tp, class _Alloc> bool std::operator==(const std::vector<_Tp, _Alloc>&, const std::vector<_Tp, _Alloc>&)’
+ 1892 |     operator==(const vector<_Tp, _Alloc>& __x, const vector<_Tp, _Alloc>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_vector.h:1892:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::vector<_Tp, _Alloc>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/functional:59,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:55,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/std_function.h:680:5: note: candidate: ‘template<class _Res, class ... _Args> bool std::operator==(const std::function<_Res(_ArgTypes ...)>&, std::nullptr_t)’
+  680 |     operator==(const function<_Res(_Args...)>& __f, nullptr_t) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/std_function.h:680:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::function<_Res(_ArgTypes ...)>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/functional:59,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:55,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/std_function.h:687:5: note: candidate: ‘template<class _Res, class ... _Args> bool std::operator==(std::nullptr_t, const std::function<_Res(_ArgTypes ...)>&)’
+  687 |     operator==(nullptr_t, const function<_Res(_Args...)>& __f) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/std_function.h:687:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::function<_Res(_ArgTypes ...)>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/unordered_map:47,
+                 from /usr/include/c++/10/functional:61,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:55,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unordered_map.h:2092:5: note: candidate: ‘template<class _Key1, class _Tp1, class _Hash1, class _Pred1, class _Alloc1> bool std::operator==(const std::unordered_map<_Key1, _Tp1, _Hash1, _Pred1, _Alloc1>&, const std::unordered_map<_Key1, _Tp1, _Hash1, _Pred1, _Alloc1>&)’
+ 2092 |     operator==(const unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unordered_map.h:2092:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::unordered_map<_Key1, _Tp1, _Hash1, _Pred1, _Alloc1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/unordered_map:47,
+                 from /usr/include/c++/10/functional:61,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:55,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unordered_map.h:2106:5: note: candidate: ‘template<class _Key1, class _Tp1, class _Hash1, class _Pred1, class _Alloc1> bool std::operator==(const std::unordered_multimap<_Key1, _Tp1, _Hash1, _Pred1, _Alloc1>&, const std::unordered_multimap<_Key1, _Tp1, _Hash1, _Pred1, _Alloc1>&)’
+ 2106 |     operator==(const unordered_multimap<_Key, _Tp, _Hash, _Pred, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unordered_map.h:2106:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::unordered_multimap<_Key1, _Tp1, _Hash1, _Pred1, _Alloc1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/bits/ios_base.h:46,
+                 from /usr/include/c++/10/ios:42,
+                 from /usr/include/c++/10/ostream:38,
+                 from /usr/include/boost/exception/detail/is_output_streamable.hpp:9,
+                 from /usr/include/boost/exception/to_string.hpp:10,
+                 from /usr/include/boost/exception/to_string_stub.hpp:9,
+                 from /usr/include/boost/exception/info.hpp:11,
+                 from /usr/include/boost/exception/detail/exception_ptr.hpp:14,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/system_error:342:3: note: candidate: ‘bool std::operator==(const std::error_code&, const std::error_code&)’
+  342 |   operator==(const error_code& __lhs, const error_code& __rhs) noexcept
+      |   ^~~~~~~~
+/usr/include/c++/10/system_error:342:32: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const std::error_code&’
+  342 |   operator==(const error_code& __lhs, const error_code& __rhs) noexcept
+      |              ~~~~~~~~~~~~~~~~~~^~~~~
+/usr/include/c++/10/system_error:349:3: note: candidate: ‘bool std::operator==(const std::error_code&, const std::error_condition&)’
+  349 |   operator==(const error_code& __lhs, const error_condition& __rhs) noexcept
+      |   ^~~~~~~~
+/usr/include/c++/10/system_error:349:32: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const std::error_code&’
+  349 |   operator==(const error_code& __lhs, const error_condition& __rhs) noexcept
+      |              ~~~~~~~~~~~~~~~~~~^~~~~
+/usr/include/c++/10/system_error:357:3: note: candidate: ‘bool std::operator==(const std::error_condition&, const std::error_condition&)’
+  357 |   operator==(const error_condition& __lhs,
+      |   ^~~~~~~~
+/usr/include/c++/10/system_error:357:37: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const std::error_condition&’
+  357 |   operator==(const error_condition& __lhs,
+      |              ~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+/usr/include/c++/10/system_error:390:3: note: candidate: ‘bool std::operator==(const std::error_condition&, const std::error_code&)’
+  390 |   operator==(const error_condition& __lhs, const error_code& __rhs) noexcept
+      |   ^~~~~~~~
+/usr/include/c++/10/system_error:390:37: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘const std::error_condition&’
+  390 |   operator==(const error_condition& __lhs, const error_code& __rhs) noexcept
+      |              ~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+In file included from /usr/include/c++/10/bits/locale_facets.h:48,
+                 from /usr/include/c++/10/bits/basic_ios.h:37,
+                 from /usr/include/c++/10/ios:44,
+                 from /usr/include/c++/10/ostream:38,
+                 from /usr/include/boost/exception/detail/is_output_streamable.hpp:9,
+                 from /usr/include/boost/exception/to_string.hpp:10,
+                 from /usr/include/boost/exception/to_string_stub.hpp:9,
+                 from /usr/include/boost/exception/info.hpp:11,
+                 from /usr/include/boost/exception/detail/exception_ptr.hpp:14,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/streambuf_iterator.h:227:5: note: candidate: ‘template<class _CharT, class _Traits> bool std::operator==(const std::istreambuf_iterator<_CharT, _Traits>&, const std::istreambuf_iterator<_CharT, _Traits>&)’
+  227 |     operator==(const istreambuf_iterator<_CharT, _Traits>& __a,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/streambuf_iterator.h:227:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::istreambuf_iterator<_CharT, _Traits>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/list:63,
+                 from /usr/local/include/ndn-cxx/meta-info.hpp:30,
+                 from /usr/local/include/ndn-cxx/data.hpp:27,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_list.h:1995:5: note: candidate: ‘template<class _Tp, class _Alloc> bool std::operator==(const std::__cxx11::list<_Tp, _Alloc>&, const std::__cxx11::list<_Tp, _Alloc>&)’
+ 1995 |     operator==(const list<_Tp, _Alloc>& __x, const list<_Tp, _Alloc>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_list.h:1995:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::__cxx11::list<_Tp, _Alloc>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/local/include/ndn-cxx/key-locator.hpp:27,
+                 from /usr/local/include/ndn-cxx/signature-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:30,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/variant:1202:3: note: candidate: ‘template<class ... _Types> constexpr bool std::operator==(const std::variant<_Types ...>&, const std::variant<_Types ...>&)’
+ 1202 |   _VARIANT_RELATION_FUNCTION_TEMPLATE(==, equal)
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/c++/10/variant:1202:3: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::variant<_Types ...>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/local/include/ndn-cxx/key-locator.hpp:27,
+                 from /usr/local/include/ndn-cxx/signature-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:30,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/variant:1209:18: note: candidate: ‘constexpr bool std::operator==(std::monostate, std::monostate)’
+ 1209 |   constexpr bool operator==(monostate, monostate) noexcept { return true; }
+      |                  ^~~~~~~~
+/usr/include/c++/10/variant:1209:29: note:   no known conversion for argument 1 from ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ to ‘std::monostate’
+ 1209 |   constexpr bool operator==(monostate, monostate) noexcept { return true; }
+      |                             ^~~~~~~~~
+In file included from /usr/include/c++/10/set:61,
+                 from /usr/local/include/ndn-cxx/security/pib/certificate-container.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/pib/key.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/key-container.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/identity.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/identity-container.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/pib.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/key-chain.hpp:28,
+                 from /usr/local/include/ndn-cxx/face.hpp:32,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_set.h:985:5: note: candidate: ‘template<class _Key, class _Compare, class _Alloc> bool std::operator==(const std::set<_Key, _Compare, _Allocator>&, const std::set<_Key, _Compare, _Allocator>&)’
+  985 |     operator==(const set<_Key, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_set.h:985:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::set<_Key, _Compare, _Allocator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/set:62,
+                 from /usr/local/include/ndn-cxx/security/pib/certificate-container.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/pib/key.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/key-container.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/identity.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/identity-container.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/pib/pib.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/key-chain.hpp:28,
+                 from /usr/local/include/ndn-cxx/face.hpp:32,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_multiset.h:971:5: note: candidate: ‘template<class _Key, class _Compare, class _Alloc> bool std::operator==(const std::multiset<_Key, _Compare, _Allocator>&, const std::multiset<_Key, _Compare, _Allocator>&)’
+  971 |     operator==(const multiset<_Key, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_multiset.h:971:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::multiset<_Key, _Compare, _Allocator>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/deque:67,
+                 from /usr/include/boost/detail/container_fwd.hpp:91,
+                 from /usr/include/boost/container_hash/extensions.hpp:22,
+                 from /usr/include/boost/container_hash/hash.hpp:760,
+                 from /usr/include/boost/functional/hash.hpp:6,
+                 from /usr/include/boost/multi_index/detail/hash_index_args.hpp:17,
+                 from /usr/include/boost/multi_index/hashed_index_fwd.hpp:16,
+                 from /usr/include/boost/multi_index/hashed_index.hpp:40,
+                 from /usr/local/include/ndn-cxx/security/trust-anchor-container.hpp:30,
+                 from /usr/local/include/ndn-cxx/security/certificate-storage.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_deque.h:2241:5: note: candidate: ‘template<class _Tp, class _Alloc> bool std::operator==(const std::deque<_Tp, _Alloc>&, const std::deque<_Tp, _Alloc>&)’
+ 2241 |     operator==(const deque<_Tp, _Alloc>& __x, const deque<_Tp, _Alloc>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_deque.h:2241:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::deque<_Tp, _Alloc>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/detail/container_fwd.hpp:98,
+                 from /usr/include/boost/container_hash/extensions.hpp:22,
+                 from /usr/include/boost/container_hash/hash.hpp:760,
+                 from /usr/include/boost/functional/hash.hpp:6,
+                 from /usr/include/boost/multi_index/detail/hash_index_args.hpp:17,
+                 from /usr/include/boost/multi_index/hashed_index_fwd.hpp:16,
+                 from /usr/include/boost/multi_index/hashed_index.hpp:40,
+                 from /usr/local/include/ndn-cxx/security/trust-anchor-container.hpp:30,
+                 from /usr/local/include/ndn-cxx/security/certificate-storage.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/complex:463:5: note: candidate: ‘template<class _Tp> constexpr bool std::operator==(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  463 |     operator==(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/complex:463:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::complex<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/detail/container_fwd.hpp:98,
+                 from /usr/include/boost/container_hash/extensions.hpp:22,
+                 from /usr/include/boost/container_hash/hash.hpp:760,
+                 from /usr/include/boost/functional/hash.hpp:6,
+                 from /usr/include/boost/multi_index/detail/hash_index_args.hpp:17,
+                 from /usr/include/boost/multi_index/hashed_index_fwd.hpp:16,
+                 from /usr/include/boost/multi_index/hashed_index.hpp:40,
+                 from /usr/local/include/ndn-cxx/security/trust-anchor-container.hpp:30,
+                 from /usr/local/include/ndn-cxx/security/certificate-storage.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/complex:468:5: note: candidate: ‘template<class _Tp> constexpr bool std::operator==(const std::complex<_Tp>&, const _Tp&)’
+  468 |     operator==(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/complex:468:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::complex<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/detail/container_fwd.hpp:98,
+                 from /usr/include/boost/container_hash/extensions.hpp:22,
+                 from /usr/include/boost/container_hash/hash.hpp:760,
+                 from /usr/include/boost/functional/hash.hpp:6,
+                 from /usr/include/boost/multi_index/detail/hash_index_args.hpp:17,
+                 from /usr/include/boost/multi_index/hashed_index_fwd.hpp:16,
+                 from /usr/include/boost/multi_index/hashed_index.hpp:40,
+                 from /usr/local/include/ndn-cxx/security/trust-anchor-container.hpp:30,
+                 from /usr/local/include/ndn-cxx/security/certificate-storage.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/complex:474:5: note: candidate: ‘template<class _Tp> constexpr bool std::operator==(const _Tp&, const std::complex<_Tp>&)’
+  474 |     operator==(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/complex:474:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const std::complex<_Tp>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/unordered_set:47,
+                 from /usr/local/include/ndn-cxx/security/validation-state.hpp:32,
+                 from /usr/local/include/ndn-cxx/security/validation-policy.hpp:28,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unordered_set.h:1705:5: note: candidate: ‘template<class _Value1, class _Hash1, class _Pred1, class _Alloc1> bool std::operator==(const std::unordered_set<_Value1, _Hash1, _Pred1, _Alloc1>&, const std::unordered_set<_Value1, _Hash1, _Pred1, _Alloc1>&)’
+ 1705 |     operator==(const unordered_set<_Value, _Hash, _Pred, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unordered_set.h:1705:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::unordered_set<_Value1, _Hash1, _Pred1, _Alloc1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/unordered_set:47,
+                 from /usr/local/include/ndn-cxx/security/validation-state.hpp:32,
+                 from /usr/local/include/ndn-cxx/security/validation-policy.hpp:28,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/unordered_set.h:1719:5: note: candidate: ‘template<class _Value1, class _Hash1, class _Pred1, class _Alloc1> bool std::operator==(const std::unordered_multiset<_Value1, _Hash1, _Pred1, _Alloc1>&, const std::unordered_multiset<_Value1, _Hash1, _Pred1, _Alloc1>&)’
+ 1719 |     operator==(const unordered_multiset<_Value, _Hash, _Pred, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/unordered_set.h:1719:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::unordered_multiset<_Value1, _Hash1, _Pred1, _Alloc1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/stack:61,
+                 from /usr/local/include/ndn-cxx/ims/in-memory-storage.hpp:28,
+                 from /usr/local/include/ndn-cxx/ims/in-memory-storage-fifo.hpp:25,
+                 from /usr/local/include/PSync/segment-publisher.hpp:26,
+                 from /usr/local/include/PSync/producer-base.hpp:26,
+                 from /usr/local/include/PSync/full-producer.hpp:23,
+                 from ../src/communication/sync-protocol-adapter.hpp:34,
+                 from ../src/communication/sync-logic-handler.hpp:28,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_stack.h:319:5: note: candidate: ‘template<class _Tp, class _Seq> bool std::operator==(const std::stack<_Tp, _Seq>&, const std::stack<_Tp, _Seq>&)’
+  319 |     operator==(const stack<_Tp, _Seq>& __x, const stack<_Tp, _Seq>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_stack.h:319:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::stack<_Tp, _Seq>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/random:51,
+                 from /usr/local/include/ndn-cxx/util/random.hpp:28,
+                 from /usr/local/include/PSync/producer-base.hpp:30,
+                 from /usr/local/include/PSync/full-producer.hpp:23,
+                 from ../src/communication/sync-protocol-adapter.hpp:34,
+                 from ../src/communication/sync-logic-handler.hpp:28,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/random.tcc:1865:5: note: candidate: ‘template<class _RealType1> bool std::operator==(const std::normal_distribution<_RealType>&, const std::normal_distribution<_RealType>&)’
+ 1865 |     operator==(const std::normal_distribution<_RealType>& __d1,
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/random.tcc:1865:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::normal_distribution<_RealType>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/c++/10/queue:64,
+                 from /usr/local/include/ndn-cxx/util/segment-fetcher.hpp:31,
+                 from /usr/local/include/PSync/full-producer.hpp:28,
+                 from ../src/communication/sync-protocol-adapter.hpp:34,
+                 from ../src/communication/sync-logic-handler.hpp:28,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/c++/10/bits/stl_queue.h:344:5: note: candidate: ‘template<class _Tp, class _Seq> bool std::operator==(const std::queue<_Tp, _Seq>&, const std::queue<_Tp, _Seq>&)’
+  344 |     operator==(const queue<_Tp, _Seq>& __x, const queue<_Tp, _Seq>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/10/bits/stl_queue.h:344:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const std::queue<_Tp, _Seq>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/chrono/chrono.hpp:11,
+                 from /usr/include/boost/chrono/include.hpp:15,
+                 from /usr/include/boost/chrono.hpp:17,
+                 from /usr/local/include/ndn-cxx/util/time.hpp:26,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:27,
+                 from /usr/local/include/ndn-cxx/meta-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:27,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/chrono/duration.hpp:712:5: note: candidate: ‘template<class Rep1, class Period1, class Rep2, class Period2> constexpr bool boost::chrono::operator==(const boost::chrono::duration<Rep, Period>&, const boost::chrono::duration<Rep2, Period2>&)’
+  712 |     operator==(const duration<Rep1, Period1>& lhs,
+      |     ^~~~~~~~
+/usr/include/boost/chrono/duration.hpp:712:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::chrono::duration<Rep, Period>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/chrono/chrono.hpp:12,
+                 from /usr/include/boost/chrono/include.hpp:15,
+                 from /usr/include/boost/chrono.hpp:17,
+                 from /usr/local/include/ndn-cxx/util/time.hpp:26,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:27,
+                 from /usr/local/include/ndn-cxx/meta-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:27,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/chrono/time_point.hpp:297:5: note: candidate: ‘template<class Clock, class Duration1, class Duration2> constexpr bool boost::chrono::operator==(const boost::chrono::time_point<Clock, Duration1>&, const boost::chrono::time_point<Clock, Duration2>&)’
+  297 |     operator==(const time_point<Clock, Duration1>& lhs,
+      |     ^~~~~~~~
+/usr/include/boost/chrono/time_point.hpp:297:5: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::chrono::time_point<Clock, Duration1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/chrono/io_v1/chrono_io.hpp:17,
+                 from /usr/include/boost/chrono/chrono_io.hpp:29,
+                 from /usr/include/boost/chrono/include.hpp:16,
+                 from /usr/include/boost/chrono.hpp:17,
+                 from /usr/local/include/ndn-cxx/util/time.hpp:26,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:27,
+                 from /usr/local/include/ndn-cxx/meta-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:27,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/chrono/process_cpu_clocks.hpp:243:3: note: candidate: ‘template<class Rep1, class Period1, class Rep2, class Period2> constexpr bool boost::chrono::operator==(const boost::chrono::duration<boost::chrono::process_times<Rep1>, Period1>&, const boost::chrono::duration<boost::chrono::process_times<Rep2>, Period2>&)’
+  243 |   operator==(const duration<process_times<Rep1>, Period1>& lhs,
+      |   ^~~~~~~~
+/usr/include/boost/chrono/process_cpu_clocks.hpp:243:3: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::chrono::duration<boost::chrono::process_times<Rep1>, Period1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/chrono/io_v1/chrono_io.hpp:17,
+                 from /usr/include/boost/chrono/chrono_io.hpp:29,
+                 from /usr/include/boost/chrono/include.hpp:16,
+                 from /usr/include/boost/chrono.hpp:17,
+                 from /usr/local/include/ndn-cxx/util/time.hpp:26,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:27,
+                 from /usr/local/include/ndn-cxx/meta-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:27,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/chrono/process_cpu_clocks.hpp:254:3: note: candidate: ‘template<class Rep1, class Period1, class Rep2, class Period2> constexpr bool boost::chrono::operator==(const boost::chrono::duration<boost::chrono::process_times<Rep1>, Period1>&, const boost::chrono::duration<Rep2, Period2>&)’
+  254 |   operator==(const duration<process_times<Rep1>, Period1>& lhs,
+      |   ^~~~~~~~
+/usr/include/boost/chrono/process_cpu_clocks.hpp:254:3: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::chrono::duration<boost::chrono::process_times<Rep1>, Period1>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/chrono/io_v1/chrono_io.hpp:17,
+                 from /usr/include/boost/chrono/chrono_io.hpp:29,
+                 from /usr/include/boost/chrono/include.hpp:16,
+                 from /usr/include/boost/chrono.hpp:17,
+                 from /usr/local/include/ndn-cxx/util/time.hpp:26,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:27,
+                 from /usr/local/include/ndn-cxx/meta-info.hpp:25,
+                 from /usr/local/include/ndn-cxx/data.hpp:27,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/chrono/process_cpu_clocks.hpp:264:3: note: candidate: ‘template<class Rep1, class Period1, class Rep2, class Period2> constexpr bool boost::chrono::operator==(const boost::chrono::duration<Rep, Period>&, const boost::chrono::duration<boost::chrono::process_times<Rep2>, Period2>&)’
+  264 |   operator==(const duration<Rep1, Period1>& lhs,
+      |   ^~~~~~~~
+/usr/include/boost/chrono/process_cpu_clocks.hpp:264:3: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::chrono::duration<Rep, Period>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/shared_ptr.hpp:17,
+                 from /usr/include/boost/exception/detail/shared_ptr.hpp:13,
+                 from /usr/include/boost/exception/info.hpp:13,
+                 from /usr/include/boost/exception/detail/exception_ptr.hpp:14,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/smart_ptr/shared_ptr.hpp:823:40: note: candidate: ‘template<class T, class U> bool boost::operator==(const boost::shared_ptr<X>&, const boost::shared_ptr<U>&)’
+  823 | template<class T, class U> inline bool operator==(shared_ptr<T> const & a, shared_ptr<U> const & b) BOOST_SP_NOEXCEPT
+      |                                        ^~~~~~~~
+/usr/include/boost/smart_ptr/shared_ptr.hpp:823:40: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::shared_ptr<X>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/shared_ptr.hpp:17,
+                 from /usr/include/boost/exception/detail/shared_ptr.hpp:13,
+                 from /usr/include/boost/exception/info.hpp:13,
+                 from /usr/include/boost/exception/detail/exception_ptr.hpp:14,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/smart_ptr/shared_ptr.hpp:846:31: note: candidate: ‘template<class T> bool boost::operator==(const boost::shared_ptr<X>&, boost::detail::sp_nullptr_t)’
+  846 | template<class T> inline bool operator==( shared_ptr<T> const & p, boost::detail::sp_nullptr_t ) BOOST_SP_NOEXCEPT
+      |                               ^~~~~~~~
+/usr/include/boost/smart_ptr/shared_ptr.hpp:846:31: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::shared_ptr<X>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/shared_ptr.hpp:17,
+                 from /usr/include/boost/exception/detail/shared_ptr.hpp:13,
+                 from /usr/include/boost/exception/info.hpp:13,
+                 from /usr/include/boost/exception/detail/exception_ptr.hpp:14,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/data.hpp:26,
+                 from /usr/local/include/ndn-cxx/face.hpp:25,
+                 from ../src/adjacent.hpp:28,
+                 from ../src/adjacency-list.hpp:25,
+                 from ../src/link-cost-manager.hpp:25,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/smart_ptr/shared_ptr.hpp:851:31: note: candidate: ‘template<class T> bool boost::operator==(boost::detail::sp_nullptr_t, const boost::shared_ptr<X>&)’
+  851 | template<class T> inline bool operator==( boost::detail::sp_nullptr_t, shared_ptr<T> const & p ) BOOST_SP_NOEXCEPT
+      |                               ^~~~~~~~
+/usr/include/boost/smart_ptr/shared_ptr.hpp:851:31: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const boost::shared_ptr<X>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/bind/bind.hpp:29,
+                 from /usr/include/boost/bind.hpp:22,
+                 from /usr/include/boost/multi_index/detail/ord_index_impl.hpp:80,
+                 from /usr/include/boost/multi_index/ordered_index.hpp:17,
+                 from /usr/local/include/ndn-cxx/security/certificate-cache.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/certificate-storage.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:27,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/bind/arg.hpp:48:40: note: candidate: ‘template<int I> constexpr bool boost::operator==(const boost::arg<I>&, const boost::arg<I>&)’
+   48 | template< int I > BOOST_CONSTEXPR bool operator==( arg<I> const &, arg<I> const & )
+      |                                        ^~~~~~~~
+/usr/include/boost/bind/arg.hpp:48:40: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::arg<I>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/optional/optional.hpp:1597,
+                 from /usr/include/boost/optional.hpp:15,
+                 from /usr/include/boost/property_tree/id_translator.hpp:16,
+                 from /usr/include/boost/property_tree/string_path.hpp:15,
+                 from /usr/include/boost/property_tree/ptree.hpp:16,
+                 from /usr/local/include/ndn-cxx/security/validator-config/common.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config/checker.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config/rule.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/validation-policy-config.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:27,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/optional/detail/optional_relops.hpp:28:6: note: candidate: ‘template<class T> bool boost::operator==(const boost::optional<T>&, const boost::optional<T>&)’
+   28 | bool operator == ( optional<T> const& x, optional<T> const& y )
+      |      ^~~~~~~~
+/usr/include/boost/optional/detail/optional_relops.hpp:28:6: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::optional<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/optional/optional.hpp:1597,
+                 from /usr/include/boost/optional.hpp:15,
+                 from /usr/include/boost/property_tree/id_translator.hpp:16,
+                 from /usr/include/boost/property_tree/string_path.hpp:15,
+                 from /usr/include/boost/property_tree/ptree.hpp:16,
+                 from /usr/local/include/ndn-cxx/security/validator-config/common.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config/checker.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config/rule.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/validation-policy-config.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:27,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/optional/detail/optional_relops.hpp:62:6: note: candidate: ‘template<class T> bool boost::operator==(const boost::optional<T>&, const T&)’
+   62 | bool operator == ( optional<T> const& x, T const& y )
+      |      ^~~~~~~~
+/usr/include/boost/optional/detail/optional_relops.hpp:62:6: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::optional<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/optional/optional.hpp:1597,
+                 from /usr/include/boost/optional.hpp:15,
+                 from /usr/include/boost/property_tree/id_translator.hpp:16,
+                 from /usr/include/boost/property_tree/string_path.hpp:15,
+                 from /usr/include/boost/property_tree/ptree.hpp:16,
+                 from /usr/local/include/ndn-cxx/security/validator-config/common.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config/checker.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config/rule.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/validation-policy-config.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:27,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/optional/detail/optional_relops.hpp:96:6: note: candidate: ‘template<class T> bool boost::operator==(const T&, const boost::optional<T>&)’
+   96 | bool operator == ( T const& x, optional<T> const& y )
+      |      ^~~~~~~~
+/usr/include/boost/optional/detail/optional_relops.hpp:96:6: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const boost::optional<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/optional/optional.hpp:1597,
+                 from /usr/include/boost/optional.hpp:15,
+                 from /usr/include/boost/property_tree/id_translator.hpp:16,
+                 from /usr/include/boost/property_tree/string_path.hpp:15,
+                 from /usr/include/boost/property_tree/ptree.hpp:16,
+                 from /usr/local/include/ndn-cxx/security/validator-config/common.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config/checker.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config/rule.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/validation-policy-config.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:27,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/optional/detail/optional_relops.hpp:131:6: note: candidate: ‘template<class T> bool boost::operator==(const boost::optional<T>&, boost::none_t)’
+  131 | bool operator == ( optional<T> const& x, none_t ) BOOST_NOEXCEPT
+      |      ^~~~~~~~
+/usr/include/boost/optional/detail/optional_relops.hpp:131:6: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::optional<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/optional/optional.hpp:1597,
+                 from /usr/include/boost/optional.hpp:15,
+                 from /usr/include/boost/property_tree/id_translator.hpp:16,
+                 from /usr/include/boost/property_tree/string_path.hpp:15,
+                 from /usr/include/boost/property_tree/ptree.hpp:16,
+                 from /usr/local/include/ndn-cxx/security/validator-config/common.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config/checker.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config/rule.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/validation-policy-config.hpp:26,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:27,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/optional/detail/optional_relops.hpp:165:6: note: candidate: ‘template<class T> bool boost::operator==(boost::none_t, const boost::optional<T>&)’
+  165 | bool operator == ( none_t , optional<T> const& y ) BOOST_NOEXCEPT
+      |      ^~~~~~~~
+/usr/include/boost/optional/detail/optional_relops.hpp:165:6: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const boost::optional<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/lexical_cast.hpp:30,
+                 from ../src/communication/sync-logic-handler.hpp:31,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/range/iterator_range_core.hpp:585:9: note: candidate: ‘template<class IteratorT, class ForwardRange> typename boost::enable_if<boost::mpl::not_<boost::is_base_and_derived<boost::iterator_range_detail::iterator_range_tag, ForwardRange> >, bool>::type boost::operator==(const ForwardRange&, const boost::iterator_range<IteratorT>&)’
+  585 |         operator==( const ForwardRange& l, const iterator_range<IteratorT>& r )
+      |         ^~~~~~~~
+/usr/include/boost/range/iterator_range_core.hpp:585:9: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const boost::iterator_range<IteratorT>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/lexical_cast.hpp:30,
+                 from ../src/communication/sync-logic-handler.hpp:31,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/range/iterator_range_core.hpp:644:9: note: candidate: ‘template<class Iterator1T, class Iterator2T> bool boost::operator==(const boost::iterator_range<IteratorT>&, const boost::iterator_range<Iterator2T>&)’
+  644 |         operator==( const iterator_range<Iterator1T>& l, const iterator_range<Iterator2T>& r )
+      |         ^~~~~~~~
+/usr/include/boost/range/iterator_range_core.hpp:644:9: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::iterator_range<IteratorT>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/lexical_cast.hpp:30,
+                 from ../src/communication/sync-logic-handler.hpp:31,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/range/iterator_range_core.hpp:654:9: note: candidate: ‘template<class IteratorT, class ForwardRange> typename boost::enable_if<boost::mpl::not_<boost::is_base_and_derived<boost::iterator_range_detail::iterator_range_tag, ForwardRange> >, bool>::type boost::operator==(const boost::iterator_range<IteratorT>&, const ForwardRange&)’
+  654 |         operator==( const iterator_range<IteratorT>& l, const ForwardRange& r )
+      |         ^~~~~~~~
+/usr/include/boost/range/iterator_range_core.hpp:654:9: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::iterator_range<IteratorT>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/lexical_cast/detail/converter_lexical.hpp:50,
+                 from /usr/include/boost/lexical_cast/try_lexical_convert.hpp:44,
+                 from /usr/include/boost/lexical_cast.hpp:32,
+                 from ../src/communication/sync-logic-handler.hpp:31,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/link-cost-manager.hpp:26,
+                 from ../src/link-cost-manager.cpp:1:
+/usr/include/boost/array.hpp:324:10: note: candidate: ‘template<class T, long unsigned int N> bool boost::operator==(const boost::array<PodType, N>&, const boost::array<PodType, N>&)’
+  324 |     bool operator== (const array<T,N>& x, const array<T,N>& y) {
+      |          ^~~~~~~~
+/usr/include/boost/array.hpp:324:10: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::array<PodType, N>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/log/attributes/attribute.hpp:20,
+                 from /usr/include/boost/log/attributes/attribute_value_set.hpp:26,
+                 from /usr/include/boost/log/core/record.hpp:21,
+                 from /usr/include/boost/log/core/core.hpp:23,
+                 from /usr/include/boost/log/core.hpp:20,
+                 from /usr/include/boost/log/common.hpp:22,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/link-cost-manager.cpp:2:
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:218:40: note: candidate: ‘template<class T, class U> bool boost::operator==(const boost::intrusive_ptr<T>&, const boost::intrusive_ptr<U>&)’
+  218 | template<class T, class U> inline bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) BOOST_SP_NOEXCEPT
+      |                                        ^~~~~~~~
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:218:40: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::intrusive_ptr<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/log/attributes/attribute.hpp:20,
+                 from /usr/include/boost/log/attributes/attribute_value_set.hpp:26,
+                 from /usr/include/boost/log/core/record.hpp:21,
+                 from /usr/include/boost/log/core/core.hpp:23,
+                 from /usr/include/boost/log/core.hpp:20,
+                 from /usr/include/boost/log/common.hpp:22,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/link-cost-manager.cpp:2:
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:228:40: note: candidate: ‘template<class T, class U> bool boost::operator==(const boost::intrusive_ptr<T>&, U*)’
+  228 | template<class T, class U> inline bool operator==(intrusive_ptr<T> const & a, U * b) BOOST_SP_NOEXCEPT
+      |                                        ^~~~~~~~
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:228:40: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::intrusive_ptr<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/log/attributes/attribute.hpp:20,
+                 from /usr/include/boost/log/attributes/attribute_value_set.hpp:26,
+                 from /usr/include/boost/log/core/record.hpp:21,
+                 from /usr/include/boost/log/core/core.hpp:23,
+                 from /usr/include/boost/log/core.hpp:20,
+                 from /usr/include/boost/log/common.hpp:22,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/link-cost-manager.cpp:2:
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:238:40: note: candidate: ‘template<class T, class U> bool boost::operator==(T*, const boost::intrusive_ptr<U>&)’
+  238 | template<class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const & b) BOOST_SP_NOEXCEPT
+      |                                        ^~~~~~~~
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:238:40: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   mismatched types ‘T*’ and ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/log/attributes/attribute.hpp:20,
+                 from /usr/include/boost/log/attributes/attribute_value_set.hpp:26,
+                 from /usr/include/boost/log/core/record.hpp:21,
+                 from /usr/include/boost/log/core/core.hpp:23,
+                 from /usr/include/boost/log/core.hpp:20,
+                 from /usr/include/boost/log/common.hpp:22,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/link-cost-manager.cpp:2:
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:261:31: note: candidate: ‘template<class T> bool boost::operator==(const boost::intrusive_ptr<T>&, boost::detail::sp_nullptr_t)’
+  261 | template<class T> inline bool operator==( intrusive_ptr<T> const & p, boost::detail::sp_nullptr_t ) BOOST_SP_NOEXCEPT
+      |                               ^~~~~~~~
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:261:31: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘std::pair<ndn::Name, boost::chrono::time_point<ndn::time::steady_clock> >’ is not derived from ‘const boost::intrusive_ptr<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+In file included from /usr/include/boost/log/attributes/attribute.hpp:20,
+                 from /usr/include/boost/log/attributes/attribute_value_set.hpp:26,
+                 from /usr/include/boost/log/core/record.hpp:21,
+                 from /usr/include/boost/log/core/core.hpp:23,
+                 from /usr/include/boost/log/core.hpp:20,
+                 from /usr/include/boost/log/common.hpp:22,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/link-cost-manager.cpp:2:
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:266:31: note: candidate: ‘template<class T> bool boost::operator==(boost::detail::sp_nullptr_t, const boost::intrusive_ptr<T>&)’
+  266 | template<class T> inline bool operator==( boost::detail::sp_nullptr_t, intrusive_ptr<T> const & p ) BOOST_SP_NOEXCEPT
+      |                               ^~~~~~~~
+/usr/include/boost/smart_ptr/intrusive_ptr.hpp:266:31: note:   template argument deduction/substitution failed:
+../src/link-cost-manager.cpp:202:36: note:   ‘const ndn::Name’ is not derived from ‘const boost::intrusive_ptr<T>’
+  202 |       if (measurementIt->second == neighbor) {
+      |                                    ^~~~~~~~
+
+Waf: Leaving directory `/home/dhf/NLSR/build'
+Build failed
+ -> task in 'nlsr-objects' failed with exit status 1 (run with -v to display more information

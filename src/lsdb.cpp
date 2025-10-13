@@ -126,7 +126,7 @@ Lsdb::scheduleAdjLsaBuild()
   if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
     // Don't build adjacency LSAs in hyperbolic routing
     NLSR_LOG_DEBUG("Adjacency LSA not built while in hyperbolic routing state");
-    return;
+    return;//不做出行为
   }
 
   if (m_isBuildAdjLsaScheduled) {
@@ -136,7 +136,68 @@ Lsdb::scheduleAdjLsaBuild()
     NLSR_LOG_DEBUG("Scheduling Adjacency LSA build in " << m_adjLsaBuildInterval);
     m_isBuildAdjLsaScheduled = true;
   }
-  m_scheduledAdjLsaBuild = m_scheduler.schedule(m_adjLsaBuildInterval, [this] { buildAdjLsa(); });
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(m_adjLsaBuildInterval, [this] { buildAdjLsa(); });//启动调度器？
+}
+
+/*************新增lsa调度方式********************/
+void
+Lsdb::scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType)
+{
+  m_adjBuildCount++;  // 保持计数器逻辑
+  
+  if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+    NLSR_LOG_DEBUG("Adjacency LSA not built while in hyperbolic routing state");
+    return;
+  }
+  
+  // 处理优先级
+  if (m_isBuildAdjLsaScheduled) {
+    // 如果新请求是高优先级（邻居失联），且当前不是高优先级
+    if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN && 
+        m_pendingBuildType != AdjLsaBuildType::NEIGHBOR_DOWN) {
+      
+      NLSR_LOG_DEBUG("High priority build (NEIGHBOR_DOWN) preempting type " 
+                    << static_cast<int>(m_pendingBuildType));
+      
+      // 取消当前调度
+      m_scheduledAdjLsaBuild.cancel();
+      m_isBuildAdjLsaScheduled = false;
+      // 继续执行新调度
+    }
+    else {
+      // 如果已有调度且不需要抢占，更新待执行类型为更高优先级
+      if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) {
+        m_pendingBuildType = buildType;
+      }
+      NLSR_LOG_DEBUG("Rescheduling Adjacency LSA build in " << m_adjLsaBuildInterval);
+      return;
+    }
+  }
+  
+  // 设置延迟时间
+  ndn::time::seconds buildInterval;
+  if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) {
+    buildInterval = ndn::time::seconds(1);  // 失联快速响应
+    NLSR_LOG_DEBUG("Scheduling NEIGHBOR_DOWN Adj LSA build in 1 second");
+  }
+  else {
+    buildInterval = m_adjLsaBuildInterval;  // 使用配置的间隔
+    NLSR_LOG_DEBUG("Scheduling " << 
+                  (buildType == AdjLsaBuildType::COST_UPDATE ? "COST_UPDATE" : "REGULAR") 
+                  << " Adj LSA build in " << buildInterval);
+  }
+  
+  m_isBuildAdjLsaScheduled = true;
+  m_pendingBuildType = buildType;
+  
+  // 调度时传递类型信息，但仍调用原有的buildAdjLsa
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(buildInterval, 
+    [this, buildType] {
+      NLSR_LOG_DEBUG("Executing scheduled Adj LSA build (type: " 
+                    << static_cast<int>(buildType) << ")");
+      buildAdjLsa();  // 调用原有的构建函数
+      m_pendingBuildType = AdjLsaBuildType::REGULAR;  // 重置
+    });
 }
 
 void
@@ -319,6 +380,7 @@ Lsdb::buildAdjLsa()
         NLSR_LOG_DEBUG("Building and installing own Adj LSA");
         buildAndInstallOwnAdjLsa();
       }
+      
       // We have no active neighbors, meaning no one can route through
       // us.  So delete our entry in the LSDB. This prevents this
       // router from refreshing the LSA, eventually causing other
@@ -337,6 +399,7 @@ Lsdb::buildAdjLsa()
   // neighbor, so schedule a build for later (when all that has
   // hopefully finished)
   else {
+    NLSR_LOG_DEBUG("*** LSA not buildable, scheduling for later ***");
     m_isBuildAdjLsaScheduled = true;
     auto schedulingTime = ndn::time::seconds(m_confParam.getInterestRetryNumber() *
                                              m_confParam.getInterestResendTime());

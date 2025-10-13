@@ -83,7 +83,7 @@ public:
 
     return false;
   }
-
+  
   void
   setMinAndMaxValue(T min, T max)
   {

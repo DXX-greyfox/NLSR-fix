@@ -1,0 +1,1350 @@
+你的分析非常准确！让我详细解答这两个问题。
+
+## 1. "合并多个请求"的具体逻辑
+
+从截图1可以看到合并机制的工作原理：
+
+```cpp
+void Lsdb::scheduleAdjLsaBuild()
+{
+  if (m_isBuildAdjLsaScheduled) {
+    return;  // 关键：已有调度就忽略新请求
+  }
+  m_isBuildAdjLsaScheduled = true;
+  // 5秒后执行
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(...);
+}
+```
+
+**合并逻辑时序示例**：
+```
+T+0秒: 邻居A成本变化 → scheduleAdjLsaBuild() → 设置标志，调度T+5秒执行
+T+1秒: 邻居B成本变化 → scheduleAdjLsaBuild() → 看到标志已设置，直接返回
+T+2秒: 邻居C成本变化 → scheduleAdjLsaBuild() → 看到标志已设置，直接返回
+T+5秒: 执行buildAdjLsa() → 一次性处理A、B、C的所有变化
+```
+
+这样避免了频繁的LSA泛洪，提高了网络效率。
+
+## 2. 方案4确实更适合动态LinkCost
+
+你的分析完全正确：
+- **原生NLSR**：成本静态，LSA更新需求低
+- **动态LinkCost**：成本频繁变化，需要区分更新类型
+
+## 方案4的具体实现
+
+### Step 1: 在LSDB中实现优先级调度
+
+```cpp
+// 在lsdb.hpp中添加
+class Lsdb {
+public:
+  enum class AdjLsaBuildPriority {
+    LOW,     // 普通成本更新
+    NORMAL,  // 默认
+    HIGH     // 失联检测
+  };
+  
+  void scheduleAdjLsaBuildWithPriority(AdjLsaBuildPriority priority);
+  
+private:
+  AdjLsaBuildPriority m_currentPriority = AdjLsaBuildPriority::NORMAL;
+};
+
+// 在lsdb.cpp中实现
+void Lsdb::scheduleAdjLsaBuildWithPriority(AdjLsaBuildPriority priority)
+{
+  // 如果新请求优先级更高，取消当前调度
+  if (m_isBuildAdjLsaScheduled && priority > m_currentPriority) {
+    NLSR_LOG_DEBUG("Higher priority LSA build requested, canceling current schedule");
+    m_scheduler.cancel(m_scheduledAdjLsaBuild);
+    m_isBuildAdjLsaScheduled = false;
+  }
+  
+  // 如果已有调度且优先级不高于当前，忽略
+  if (m_isBuildAdjLsaScheduled && priority <= m_currentPriority) {
+    NLSR_LOG_TRACE("LSA build already scheduled with equal or higher priority");
+    return;
+  }
+  
+  // 根据优先级设置延迟
+  ndn::time::seconds delay;
+  switch (priority) {
+    case AdjLsaBuildPriority::HIGH:
+      delay = ndn::time::seconds(1);  // 失联检测，快速响应
+      break;
+    case AdjLsaBuildPriority::NORMAL:
+      delay = ndn::time::seconds(3);  
+      break;
+    case AdjLsaBuildPriority::LOW:
+      delay = ndn::time::seconds(5);  // 成本更新，可以等待
+      break;
+  }
+  
+  m_isBuildAdjLsaScheduled = true;
+  m_currentPriority = priority;
+  
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(delay, [this] {
+    buildAdjLsa();
+    m_isBuildAdjLsaScheduled = false;
+    m_currentPriority = AdjLsaBuildPriority::NORMAL;
+  });
+  
+  NLSR_LOG_DEBUG("Scheduled Adj LSA build with priority " << static_cast<int>(priority) 
+                << " after " << delay);
+}
+```
+
+### Step 2: HelloProtocol使用高优先级
+
+```cpp
+void HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
+{
+  // ... 
+  else if (status == Adjacent::STATUS_ACTIVE) {
+    m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);
+    onNeighborStatusChanged(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    // 使用高优先级触发LSA构建
+    if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+      m_routingTable.scheduleRoutingTableCalculation();
+    } else {
+      // 失联检测使用HIGH优先级
+      m_lsdb.scheduleAdjLsaBuildWithPriority(Lsdb::AdjLsaBuildPriority::HIGH);
+    }
+  }
+}
+```
+
+### Step 3: LinkCostManager使用低优先级
+
+```cpp
+void LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
+{
+  // ... 成本计算和更新 ...
+  
+  // 检查邻居状态和稳定性
+  if (adjacent->getStatus() == Adjacent::STATUS_ACTIVE && 
+      it->second.timeoutCount == 0) {  // 稳定的ACTIVE邻居
+    
+    // 成本更新使用LOW优先级
+    m_lsdb.scheduleAdjLsaBuildWithPriority(Lsdb::AdjLsaBuildPriority::LOW);
+    
+    NLSR_LOG_INFO("Scheduled LOW priority LSA build for cost update: " << neighbor);
+  } else {
+    NLSR_LOG_DEBUG("Skipping LSA trigger for unstable/inactive neighbor: " << neighbor);
+  }
+}
+
+// 处理状态变化时不触发LSA（让HelloProtocol处理）
+void LinkCostManager::onNeighborStatusChanged(const ndn::Name& neighbor, 
+                                             Adjacent::Status newStatus)
+{
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it != m_outgoingLinks.end()) {
+    it->second.status = newStatus;
+    
+    if (newStatus == Adjacent::STATUS_INACTIVE) {
+      // 清理数据但不触发LSA
+      it->second.rttHistory.clear();
+      it->second.timeoutCount = m_confParam.getInterestRetryNumber();
+      
+      // 停止所有待处理的RTT测量
+      cancelPendingMeasurements(neighbor);
+      
+      NLSR_LOG_INFO("Neighbor " << neighbor << " marked INACTIVE, cleared RTT data");
+      // 不调用scheduleAdjLsaBuild，让HelloProtocol的HIGH优先级调用处理
+    }
+  }
+}
+```
+
+### Step 4: 添加保护机制防止过频更新
+
+```cpp
+// 在LinkCostManager中添加限流
+class LinkCostManager {
+private:
+  struct OutgoingLinkState {
+    // ... 原有成员 ...
+    ndn::time::steady_clock::time_point lastLsaTriggerTime;
+  };
+  
+  static constexpr auto MIN_LSA_TRIGGER_INTERVAL = ndn::time::seconds(10);
+};
+
+void LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
+{
+  // ... 成本更新 ...
+  
+  // 限流检查
+  auto now = ndn::time::steady_clock::now();
+  if (now - it->second.lastLsaTriggerTime < MIN_LSA_TRIGGER_INTERVAL) {
+    NLSR_LOG_TRACE("Skipping LSA trigger due to rate limiting");
+    return;
+  }
+  
+  it->second.lastLsaTriggerTime = now;
+  m_lsdb.scheduleAdjLsaBuildWithPriority(Lsdb::AdjLsaBuildPriority::LOW);
+}
+```
+
+## 优势总结
+
+这个方案的优势：
+1. **失联快速响应**：HIGH优先级1秒内处理
+2. **成本更新高效**：LOW优先级5秒内合并多个更新
+3. **避免冲突**：高优先级可以抢占低优先级
+4. **保持动态性**：成本变化仍能及时传播（最多5秒延迟）
+5. **防止过频**：通过限流机制避免LSA泛洪
+
+这样既保证了LinkCost的动态性，又确保了失联节点的快速清除。
+
+## 1. 时序问题分析：为什么会导致失联清除失败
+
+根据您提供的代码，让我分析具体的时序问题：
+
+### 问题场景时序
+```
+T+0秒: 邻居A成本变化 → LinkCostManager调用scheduleAdjLsaBuild()
+      → m_isBuildAdjLsaScheduled = true，调度T+5秒执行
+      
+T+2秒: 邻居A失联 → HelloProtocol调用scheduleAdjLsaBuild()  
+      → 看到m_isBuildAdjLsaScheduled已经是true，直接return
+      → HelloProtocol的失联处理被忽略！
+      
+T+5秒: 执行buildAdjLsa() → 使用的是T+0秒时的邻居状态（仍为ACTIVE）
+      → 失联节点未被清除
+```
+
+**关键问题**：`m_isBuildAdjLsaScheduled`标志不区分触发源，导致高优先级的失联检测被低优先级的成本更新阻塞。
+
+## 2. 符合NLSR风格的完整修改方案
+
+### 修改文档
+
+#### 文件1: `lsdb.hpp`
+```cpp
+// 在public部分添加
+class Lsdb
+{
+public:
+  // ... 原有代码 ...
+  
+  /**
+   * @brief Schedule Adjacency LSA build with priority
+   * 
+   * Higher priority requests can preempt lower priority ones.
+   * This is crucial for handling node failures promptly.
+   */
+  enum class AdjLsaBuildType {
+    COST_UPDATE,    ///< Regular link cost update
+    NEIGHBOR_DOWN   ///< Neighbor became inactive
+  };
+  
+  void
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType);
+  
+private:
+  // ... 原有代码 ...
+  
+  AdjLsaBuildType m_currentBuildType{AdjLsaBuildType::COST_UPDATE};
+};
+```
+
+#### 文件2: `lsdb.cpp`
+```cpp
+void
+Lsdb::scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType)
+{
+  NLSR_LOG_DEBUG("scheduleAdjLsaBuildWithType called with type: " 
+                 << static_cast<int>(buildType));
+  
+  // Higher priority can preempt lower priority
+  if (m_isBuildAdjLsaScheduled) {
+    if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN &&
+        m_currentBuildType == AdjLsaBuildType::COST_UPDATE) {
+      // Cancel existing schedule for higher priority
+      NLSR_LOG_DEBUG("Preempting cost update with neighbor down event");
+      m_scheduler.cancel(m_scheduledAdjLsaBuild);
+      m_isBuildAdjLsaScheduled = false;
+    }
+    else {
+      NLSR_LOG_TRACE("Adj LSA build already scheduled, ignoring request");
+      return;
+    }
+  }
+  
+  m_isBuildAdjLsaScheduled = true;
+  m_currentBuildType = buildType;
+  
+  // Set delay based on type
+  ndn::time::seconds delay = (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) 
+                              ? ndn::time::seconds(1)  // Fast for failures
+                              : ndn::time::seconds(m_confParam.getAdjLsaBuildInterval());
+  
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(delay, [this] {
+    buildAdjLsa();
+    m_isBuildAdjLsaScheduled = false;
+    m_currentBuildType = AdjLsaBuildType::COST_UPDATE;
+  });
+  
+  NLSR_LOG_DEBUG("Scheduled Adj LSA build after " << delay);
+}
+
+// 保留原有方法以兼容
+void
+Lsdb::scheduleAdjLsaBuild()
+{
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType::COST_UPDATE);
+}
+```
+
+#### 文件3: `hello-protocol.cpp`
+```cpp
+void
+HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
+{
+  // ... 原有验证代码 ...
+  
+  else if (status == Adjacent::STATUS_ACTIVE) {
+    m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    NLSR_LOG_DEBUG("Neighbor: " << neighbor << " status changed to INACTIVE");
+    
+    // Emit signal for LinkCostManager
+    onNeighborStatusChanged(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+      m_routingTable.scheduleRoutingTableCalculation();
+    }
+    else {
+      // Use high priority for neighbor down
+      m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::NEIGHBOR_DOWN);
+    }
+  }
+}
+```
+
+#### 文件4: `link-cost-manager.cpp`
+```cpp
+void
+LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
+{
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    NLSR_LOG_ERROR("Cannot find adjacent for " << neighbor);
+    return;
+  }
+  
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+
+  // Skip inactive neighbors
+  if (it->second.status == Adjacent::STATUS_INACTIVE) {
+    NLSR_LOG_DEBUG("Skipping cost update for INACTIVE neighbor: " << neighbor);
+    return;
+  }
+  
+  // ... 成本计算逻辑 ...
+  
+  double oldCost = adjacent->getLinkCost();
+  
+  // Check threshold
+  if (std::abs(finalCost - oldCost) / oldCost < 0.05) {
+    NLSR_LOG_TRACE("Cost change too small, skipping update");
+    return;
+  }
+  
+  // Rate limiting
+  auto now = ndn::time::steady_clock::now();
+  static constexpr auto MIN_UPDATE_INTERVAL = ndn::time::seconds(10);
+  
+  if (now - it->second.lastLsaTriggerTime < MIN_UPDATE_INTERVAL) {
+    NLSR_LOG_TRACE("Rate limiting LSA trigger for " << neighbor);
+    return;
+  }
+  
+  // Update cost
+  adjacent->setLinkCost(finalCost);
+  it->second.currentCost = finalCost;
+  it->second.lastLsaTriggerTime = now;
+  
+  // Trigger LSA build for cost update only if neighbor is stable
+  if (it->second.timeoutCount == 0) {
+    m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::COST_UPDATE);
+    m_routingTable.scheduleRoutingTableCalculation();
+  }
+  
+  m_costUpdates++;
+  NLSR_LOG_INFO("Updated link cost for " << neighbor 
+               << " from " << oldCost << " to " << finalCost);
+}
+
+void
+LinkCostManager::onNeighborStatusChanged(const ndn::Name& neighbor, 
+                                        Adjacent::Status newStatus)
+{
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+  
+  auto& linkState = it->second;
+  Adjacent::Status oldStatus = linkState.status;
+  linkState.status = newStatus;
+  
+  NLSR_LOG_INFO("Neighbor " << neighbor << " status changed from " 
+               << oldStatus << " to " << newStatus);
+  
+  if (newStatus == Adjacent::STATUS_INACTIVE) {
+    // Clean up state
+    linkState.rttHistory.clear();
+    linkState.timeoutCount = m_confParam.getInterestRetryNumber();
+    
+    // Cancel pending measurements
+    auto measurementIt = m_pendingMeasurements.begin();
+    while (measurementIt != m_pendingMeasurements.end()) {
+      if (measurementIt->second == neighbor) {
+        measurementIt = m_pendingMeasurements.erase(measurementIt);
+      }
+      else {
+        ++measurementIt;
+      }
+    }
+    
+    NLSR_LOG_INFO("Cleaned up state for INACTIVE neighbor " << neighbor);
+    // Do NOT trigger LSA build here - HelloProtocol handles it
+  }
+  else if (newStatus == Adjacent::STATUS_ACTIVE && 
+           oldStatus != Adjacent::STATUS_ACTIVE) {
+    linkState.timeoutCount = 0;
+    linkState.lastSuccess = ndn::time::steady_clock::now();
+    
+    if (m_isActive) {
+      scheduleRttMeasurement(neighbor);
+    }
+  }
+}
+```
+
+#### 文件5: `link-cost-manager.hpp`
+在`OutgoingLinkState`结构体中添加：
+```cpp
+struct OutgoingLinkState
+{
+  // ... 原有成员 ...
+  ndn::time::steady_clock::time_point lastLsaTriggerTime;
+};
+```
+
+### 测试验证步骤
+
+1. **编译修改后的代码**
+```bash
+./waf configure --debug
+./waf
+```
+
+2. **测试失联清除**
+```bash
+# 终端1: 启动v1
+NDN_LOG='nlsr.Lsdb=DEBUG:nlsr.LinkCostManager=DEBUG' nlsr -f nlsr-v1.conf
+
+# 终端2: 启动v2
+nlsr -f nlsr-v2.conf
+
+# 等待稳定后停止v2
+# 观察v1日志中的"NEIGHBOR_DOWN"和"Preempting"消息
+```
+
+3. **验证路由表清除**
+```bash
+# 检查失联后路由表
+nlsrc routing
+nfdc fib list
+```
+
+### 关键改进点
+
+1. **类型化调度**：使用枚举而非布尔值，更清晰
+2. **抢占机制**：失联事件可以抢占成本更新
+3. **限流保护**：防止过频的LSA更新
+4. **职责分离**：LinkCostManager只负责成本，不处理失联
+
+这个方案保持了NLSR的代码风格，使用了ndn-cxx的时间类型，并确保了失联节点能够被及时清除。
+
+好问题！让我详细解释这些细节。
+
+## 1. "保留方法兼容"的含义
+
+"保留方法兼容"意思是保留原有的`scheduleAdjLsaBuild()`方法不变，这样：
+- **现有代码不需要修改**：NLSR其他地方调用`scheduleAdjLsaBuild()`的代码仍然可以正常工作
+- **新功能通过新方法提供**：只有需要优先级控制的地方才调用新的`scheduleAdjLsaBuildWithType()`
+
+## 2. `m_adjBuildCount++`的作用
+
+这个计数器用于跟踪有多少个模块请求了LSA构建。看`buildAdjLsa()`的实现可以发现它会在构建完成后减少这个计数：
+
+```cpp
+void Lsdb::buildAdjLsa()
+{
+  // ... 构建LSA ...
+  
+  // 构建完成后减少计数
+  m_adjBuildCount = m_adjBuildCount - adjBuildCount;
+}
+```
+
+这个机制用于处理并发请求的情况。
+
+## 3. 改进后的完整实现
+
+根据您的代码，这是更准确的实现：
+
+### `lsdb.hpp`
+```cpp
+class Lsdb
+{
+public:
+  enum class AdjLsaBuildType {
+    REGULAR,        // 常规请求（默认）
+    COST_UPDATE,    // 成本更新
+    NEIGHBOR_DOWN   // 邻居失联
+  };
+  
+  void
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType);
+  
+  // 保留原方法
+  void
+  scheduleAdjLsaBuild();
+  
+private:
+  AdjLsaBuildType m_currentBuildType{AdjLsaBuildType::REGULAR};
+  uint32_t m_adjBuildCount{0};
+};
+```
+
+### `lsdb.cpp`
+```cpp
+void
+Lsdb::scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType)
+{
+  // 增加构建计数
+  m_adjBuildCount++;
+  
+  // 检查双曲路由状态
+  if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+    NLSR_LOG_DEBUG("Adjacency LSA not built while in hyperbolic routing state");
+    return;
+  }
+  
+  // 处理已有调度的情况
+  if (m_isBuildAdjLsaScheduled) {
+    // 如果是高优先级（邻居失联），可以抢占低优先级
+    if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN && 
+        m_currentBuildType != AdjLsaBuildType::NEIGHBOR_DOWN) {
+      
+      NLSR_LOG_DEBUG("High priority build preempting existing schedule");
+      m_scheduler.cancel(m_scheduledAdjLsaBuild);
+      m_isBuildAdjLsaScheduled = false;
+      // 继续执行新的调度
+    }
+    else {
+      NLSR_LOG_DEBUG("Rescheduling Adjacency LSA build in " << m_adjLsaBuildInterval);
+      return;  // 已有相同或更高优先级的调度，直接返回
+    }
+  }
+  
+  // 根据类型设置延迟
+  ndn::time::seconds buildInterval;
+  switch (buildType) {
+    case AdjLsaBuildType::NEIGHBOR_DOWN:
+      buildInterval = ndn::time::seconds(1);  // 快速响应失联
+      NLSR_LOG_DEBUG("Scheduling high-priority Adjacency LSA build in 1 second");
+      break;
+      
+    case AdjLsaBuildType::COST_UPDATE:
+      buildInterval = m_adjLsaBuildInterval;  // 使用配置的间隔（通常5秒）
+      NLSR_LOG_DEBUG("Scheduling cost-update Adjacency LSA build in " << buildInterval);
+      break;
+      
+    default:  // REGULAR
+      buildInterval = m_adjLsaBuildInterval;
+      NLSR_LOG_DEBUG("Scheduling regular Adjacency LSA build in " << buildInterval);
+      break;
+  }
+  
+  m_isBuildAdjLsaScheduled = true;
+  m_currentBuildType = buildType;
+  
+  // 调度构建
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(buildInterval, [this, buildType] {
+    NLSR_LOG_DEBUG("Executing scheduled Adj LSA build (type: " 
+                  << static_cast<int>(buildType) << ")");
+    buildAdjLsa();
+    m_isBuildAdjLsaScheduled = false;
+    m_currentBuildType = AdjLsaBuildType::REGULAR;
+  });
+}
+
+// 保留原方法以兼容
+void
+Lsdb::scheduleAdjLsaBuild()
+{
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType::REGULAR);
+}
+```
+
+### 在`hello-protocol.cpp`中使用
+```cpp
+void
+HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
+{
+  // ... 前面的代码 ...
+  
+  else if (status == Adjacent::STATUS_ACTIVE) {
+    m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    NLSR_LOG_DEBUG("Neighbor: " << neighbor << " status changed to INACTIVE");
+    
+    onNeighborStatusChanged(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+      m_routingTable.scheduleRoutingTableCalculation();
+    }
+    else {
+      // 使用高优先级类型
+      m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::NEIGHBOR_DOWN);
+    }
+  }
+}
+```
+
+### 在`link-cost-manager.cpp`中使用
+```cpp
+void
+LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
+{
+  // ... 成本计算 ...
+  
+  // 只在邻居稳定时触发LSA
+  if (adjacent->getStatus() == Adjacent::STATUS_ACTIVE && 
+      it->second.timeoutCount == 0) {
+    
+    // 使用成本更新类型
+    m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::COST_UPDATE);
+    m_routingTable.scheduleRoutingTableCalculation();
+  }
+}
+```
+
+## 关键点说明
+
+1. **计数器维护**：保留`m_adjBuildCount++`确保与原有逻辑兼容
+2. **三种类型**：
+   - `REGULAR`：普通调用（默认）
+   - `COST_UPDATE`：成本更新（5秒延迟）
+   - `NEIGHBOR_DOWN`：失联检测（1秒延迟）
+3. **抢占逻辑**：只有`NEIGHBOR_DOWN`可以抢占其他类型
+4. **兼容性**：原有的`scheduleAdjLsaBuild()`调用不需要修改
+
+这样的设计既保持了与现有代码的兼容性，又解决了失联节点清除的时序问题。
+您的观察非常准确！我之前的方案确实没有充分考虑到现有的调用链关系。让我重新分析并提供更合理的实现。
+
+## 现有调用链分析
+
+从您提供的代码可以看到：
+```
+scheduleAdjLsaBuild() → 调度 → buildAdjLsa() → buildAndInstallOwnAdjLsa()
+```
+
+`buildAdjLsa()`负责：
+1. 检查是否可以构建（`isAdjLsaBuildable`）
+2. 管理`m_adjBuildCount`
+3. 决定是构建还是删除LSA
+
+## 修正后的实现方案
+
+### `lsdb.hpp`
+```cpp
+class Lsdb
+{
+public:
+  enum class AdjLsaBuildType {
+    REGULAR,        // 常规请求
+    COST_UPDATE,    // 成本更新
+    NEIGHBOR_DOWN   // 邻居失联
+  };
+  
+  void
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType);
+  
+  void
+  scheduleAdjLsaBuild();  // 保留原方法
+  
+private:
+  AdjLsaBuildType m_currentBuildType{AdjLsaBuildType::REGULAR};
+  AdjLsaBuildType m_pendingBuildType{AdjLsaBuildType::REGULAR};  // 新增：记录待执行的类型
+};
+```
+
+### `lsdb.cpp`
+```cpp
+void
+Lsdb::scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType)
+{
+  m_adjBuildCount++;  // 保持计数器逻辑
+  
+  if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+    NLSR_LOG_DEBUG("Adjacency LSA not built while in hyperbolic routing state");
+    return;
+  }
+  
+  // 处理优先级
+  if (m_isBuildAdjLsaScheduled) {
+    // 如果新请求是高优先级（邻居失联），且当前不是高优先级
+    if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN && 
+        m_pendingBuildType != AdjLsaBuildType::NEIGHBOR_DOWN) {
+      
+      NLSR_LOG_DEBUG("High priority build (NEIGHBOR_DOWN) preempting type " 
+                    << static_cast<int>(m_pendingBuildType));
+      
+      // 取消当前调度
+      m_scheduler.cancel(m_scheduledAdjLsaBuild);
+      m_isBuildAdjLsaScheduled = false;
+      // 继续执行新调度
+    }
+    else {
+      // 如果已有调度且不需要抢占，更新待执行类型为更高优先级
+      if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) {
+        m_pendingBuildType = buildType;
+      }
+      NLSR_LOG_DEBUG("Rescheduling Adjacency LSA build in " << m_adjLsaBuildInterval);
+      return;
+    }
+  }
+  
+  // 设置延迟时间
+  ndn::time::seconds buildInterval;
+  if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) {
+    buildInterval = ndn::time::seconds(1);  // 失联快速响应
+    NLSR_LOG_DEBUG("Scheduling NEIGHBOR_DOWN Adj LSA build in 1 second");
+  }
+  else {
+    buildInterval = m_adjLsaBuildInterval;  // 使用配置的间隔
+    NLSR_LOG_DEBUG("Scheduling " << 
+                  (buildType == AdjLsaBuildType::COST_UPDATE ? "COST_UPDATE" : "REGULAR") 
+                  << " Adj LSA build in " << buildInterval);
+  }
+  
+  m_isBuildAdjLsaScheduled = true;
+  m_pendingBuildType = buildType;
+  
+  // 调度时传递类型信息，但仍调用原有的buildAdjLsa
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(buildInterval, 
+    [this, buildType] {
+      NLSR_LOG_DEBUG("Executing scheduled Adj LSA build (type: " 
+                    << static_cast<int>(buildType) << ")");
+      buildAdjLsa();  // 调用原有的构建函数
+      m_pendingBuildType = AdjLsaBuildType::REGULAR;  // 重置
+    });
+}
+
+// 保留原方法
+void
+Lsdb::scheduleAdjLsaBuild()
+{
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType::REGULAR);
+}
+
+// buildAdjLsa()保持不变
+void
+Lsdb::buildAdjLsa()
+{
+  NLSR_LOG_TRACE("buildAdjLsa called");
+  
+  m_isBuildAdjLsaScheduled = false;
+  
+  // 原有逻辑完全不变
+  if (m_confParam.getAdjacencyList().isAdjLsaBuildable(m_confParam.getInterestRetryNumber())) {
+    int adjBuildCount = m_adjBuildCount;
+    if (adjBuildCount > 0) {
+      if (m_confParam.getAdjacencyList().getNumOfActiveNeighbor() > 0) {
+        NLSR_LOG_DEBUG("Building and installing own Adj LSA");
+        buildAndInstallOwnAdjLsa();  // 调用原有函数
+      }
+      else {
+        NLSR_LOG_DEBUG("Removing own Adj LSA; no ACTIVE neighbors");
+        removeLsa(m_thisRouterPrefix, Lsa::Type::ADJACENCY);
+      }
+      m_adjBuildCount = m_adjBuildCount - adjBuildCount;
+    }
+  }
+  else {
+    // ... 原有的else分支逻辑
+  }
+}
+
+// buildAndInstallOwnAdjLsa()保持完全不变
+```
+
+## 关键改进
+
+1. **保持原有调用链**：`scheduleAdjLsaBuildWithType` → `buildAdjLsa` → `buildAndInstallOwnAdjLsa`
+2. **不改变核心逻辑**：`buildAdjLsa`和`buildAndInstallOwnAdjLsa`保持不变
+3. **只在调度层面处理优先级**：抢占和延迟控制只发生在`schedule`阶段
+4. **保持计数器语义**：`m_adjBuildCount`的增减逻辑不变
+
+## 使用示例
+
+### HelloProtocol
+```cpp
+// 邻居失联时使用高优先级
+m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::NEIGHBOR_DOWN);
+```
+
+### LinkCostManager
+```cpp
+// 成本更新使用普通优先级
+m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::COST_UPDATE);
+```
+
+### 其他地方
+```cpp
+// 保持原有调用不变
+m_lsdb.scheduleAdjLsaBuild();  // 自动使用REGULAR类型
+```
+
+这个方案的优势是：
+- 最小化对现有代码的改动
+- 保持了原有的构建逻辑完整性
+- 只在调度层面引入优先级机制
+- 向后兼容，不影响其他模块
+
+根据最新的LSDB修改方案，以下是所有需要相应更新的函数和具体修改代码：
+
+## 完整修改清单
+
+### 1. **hello-protocol.cpp**
+
+```cpp
+void
+HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
+{
+  // ... 前面的验证代码保持不变 ...
+  
+  ndn::Name neighbor = interestName.getPrefix(-3);
+  NLSR_LOG_DEBUG("Neighbor: " << neighbor);
+  m_adjacencyList.incrementTimedOutInterestCount(neighbor);
+  
+  Adjacent::Status status = m_adjacencyList.getStatusOfNeighbor(neighbor);
+  uint32_t infoIntTimedOutCount = m_adjacencyList.getTimedOutInterestCount(neighbor);
+  
+  // 发射信号给LinkCostManager
+  onTimeout(neighbor, infoIntTimedOutCount);
+  
+  if (infoIntTimedOutCount < m_confParam.getInterestRetryNumber()) {
+    // 继续重试
+    expressInterest(interestName, m_confParam.getInterestResendTime());
+  }
+  else if (status == Adjacent::STATUS_ACTIVE) {
+    m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    NLSR_LOG_DEBUG("Neighbor: " << neighbor << " status changed to INACTIVE");
+    
+    // 通知LinkCostManager
+    onNeighborStatusChanged(neighbor, Adjacent::STATUS_INACTIVE);
+    
+    if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+      m_routingTable.scheduleRoutingTableCalculation();
+    }
+    else {
+      // 使用高优先级类型处理失联
+      m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::NEIGHBOR_DOWN);
+    }
+  }
+}
+```
+
+### 2. **link-cost-manager.cpp**
+
+```cpp
+void
+LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
+{
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    NLSR_LOG_ERROR("Cannot find adjacent for " << neighbor);
+    return;
+  }
+  
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+
+  // 检查邻居状态
+  if (it->second.status == Adjacent::STATUS_INACTIVE) {
+    NLSR_LOG_DEBUG("Skipping cost update for INACTIVE neighbor: " << neighbor);
+    return;
+  }
+  
+  double finalCost = rttBasedCost;
+  
+  // 负载感知计算（如果启用）
+  if (m_loadAwareCostCalculator) {
+    try {
+      auto metricsOpt = getLinkMetrics(neighbor);
+      if (metricsOpt) {
+        finalCost = m_loadAwareCostCalculator(neighbor, rttBasedCost, *metricsOpt);
+        NLSR_LOG_DEBUG("Load-aware cost calculation: " << rttBasedCost 
+                      << " -> " << finalCost);
+      }
+    } catch (const std::exception& e) {
+      NLSR_LOG_ERROR("Load-aware calculation failed: " << e.what());
+      finalCost = rttBasedCost;
+    }
+  }
+  
+  double oldCost = adjacent->getLinkCost();
+  
+  // 检查变化阈值
+  if (std::abs(finalCost - oldCost) / oldCost < 0.05) {
+    NLSR_LOG_TRACE("Cost change too small, skipping update");
+    return;
+  }
+  
+  // 限流检查
+  auto now = ndn::time::steady_clock::now();
+  static constexpr auto MIN_LSA_INTERVAL = ndn::time::seconds(10);
+  
+  if (now - it->second.lastLsaTriggerTime < MIN_LSA_INTERVAL) {
+    NLSR_LOG_TRACE("Rate limiting LSA trigger for " << neighbor);
+    // 更新成本但不触发LSA
+    adjacent->setLinkCost(finalCost);
+    it->second.currentCost = finalCost;
+    return;
+  }
+  
+  // 更新成本
+  adjacent->setLinkCost(finalCost);
+  it->second.currentCost = finalCost;
+  it->second.lastLsaTriggerTime = now;
+  
+  // 只在邻居稳定时触发LSA构建
+  if (it->second.timeoutCount == 0) {
+    m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::COST_UPDATE);
+    m_routingTable.scheduleRoutingTableCalculation();
+    
+    NLSR_LOG_INFO("Triggered COST_UPDATE LSA build for " << neighbor);
+  }
+  
+  m_costUpdates++;
+  NLSR_LOG_INFO("Updated cost for " << neighbor 
+               << ": " << oldCost << " -> " << finalCost);
+}
+
+void
+LinkCostManager::onNeighborStatusChanged(const ndn::Name& neighbor, 
+                                        Adjacent::Status newStatus)
+{
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+  
+  auto& linkState = it->second;
+  Adjacent::Status oldStatus = linkState.status;
+  linkState.status = newStatus;
+  
+  NLSR_LOG_INFO("Neighbor " << neighbor << " status: " 
+               << oldStatus << " -> " << newStatus);
+  
+  if (newStatus == Adjacent::STATUS_INACTIVE) {
+    // 清理状态
+    linkState.rttHistory.clear();
+    linkState.timeoutCount = m_confParam.getInterestRetryNumber();
+    
+    // 取消所有待处理的RTT测量
+    auto measurementIt = m_pendingMeasurements.begin();
+    while (measurementIt != m_pendingMeasurements.end()) {
+      if (measurementIt->second == neighbor) {
+        measurementIt = m_pendingMeasurements.erase(measurementIt);
+      }
+      else {
+        ++measurementIt;
+      }
+    }
+    
+    NLSR_LOG_INFO("Cleaned up state for INACTIVE neighbor " << neighbor);
+    // 不在这里触发LSA，由HelloProtocol处理
+  }
+  else if (newStatus == Adjacent::STATUS_ACTIVE && 
+           oldStatus != Adjacent::STATUS_ACTIVE) {
+    linkState.timeoutCount = 0;
+    linkState.lastSuccess = ndn::time::steady_clock::now();
+    
+    if (m_isActive) {
+      scheduleRttMeasurement(neighbor);
+    }
+  }
+}
+```
+
+### 3. **link-cost-manager.hpp**
+
+```cpp
+struct OutgoingLinkState
+{
+  ndn::Name neighbor;
+  Adjacent::Status status{Adjacent::STATUS_ACTIVE};
+  double originalCost{0};
+  double currentCost{0};
+  uint32_t timeoutCount{0};
+  ndn::time::steady_clock::time_point lastSuccess;
+  
+  // 新增字段
+  ndn::time::steady_clock::time_point lastLsaTriggerTime;
+  
+  // RTT历史记录
+  struct RttMeasurement {
+    ndn::time::steady_clock::duration rtt;
+    ndn::time::steady_clock::time_point timestamp;
+  };
+  std::deque<RttMeasurement> rttHistory;
+  static constexpr size_t MAX_RTT_HISTORY = 10;
+  
+  // ... 其他成员函数 ...
+};
+```
+
+### 4. **nlsr.cpp** (如果有直接调用)
+
+检查是否有其他地方调用`scheduleAdjLsaBuild()`，通常在：
+
+```cpp
+void
+Nlsr::onFaceEventNotification(const ndn::nfd::FaceEventNotification& faceEventNotification)
+{
+  // ... 前面的处理 ...
+  
+  if (adjacent->getFaceId() == faceEventNotification.getFaceId() &&
+      adjacent->getStatus() == Adjacent::STATUS_ACTIVE) {
+    
+    adjacent->setStatus(Adjacent::STATUS_INACTIVE);
+    
+    if (m_confParam.getHyperbolicState() != HYPERBOLIC_STATE_ON) {
+      // 面断开也使用高优先级
+      m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::NEIGHBOR_DOWN);
+    }
+    else {
+      m_routingTable.scheduleRoutingTableCalculation();
+    }
+  }
+}
+```
+
+### 5. **adjacency-list.cpp** (可能需要的辅助函数)
+
+如果需要批量获取ACTIVE邻居：
+
+```cpp
+std::list<Adjacent>
+AdjacencyList::getActiveAdjacents() const
+{
+  std::list<Adjacent> activeList;
+  for (const auto& adj : m_adjList) {
+    if (adj.getStatus() == Adjacent::STATUS_ACTIVE) {
+      activeList.push_back(adj);
+    }
+  }
+  return activeList;
+}
+```
+
+## 测试建议
+
+### 编译检查
+```bash
+./waf configure --debug
+./waf
+```
+
+### 运行时日志验证
+```bash
+NDN_LOG='nlsr.Lsdb=DEBUG:nlsr.LinkCostManager=DEBUG:nlsr.HelloProtocol=DEBUG' \
+  nlsr -f nlsr.conf 2>&1 | tee nlsr.log
+
+# 分析日志中的关键词
+grep -E "NEIGHBOR_DOWN|COST_UPDATE|Preempting|scheduleAdjLsaBuildWithType" nlsr.log
+```
+
+### 功能验证步骤
+1. 启动两个节点v1和v2
+2. 等待链路稳定并开始RTT测量
+3. 停止v2，观察v1是否在1秒内触发NEIGHBOR_DOWN类型的LSA构建
+4. 检查`nlsrc routing`和`nfdc fib`是否正确删除失联节点
+
+这个方案保持了最小改动原则，同时确保失联节点能被快速清除。
+基于我们的讨论，以下是所有必要的修改清单：
+
+## 修改文件清单
+
+### 1. **lsdb.hpp**
+在public部分添加：
+```cpp
+// 在public部分添加枚举和新方法
+enum class AdjLsaBuildType {
+  REGULAR,        // 常规请求
+  COST_UPDATE,    // 成本更新  
+  NEIGHBOR_DOWN   // 邻居失联
+};
+
+void
+scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType);
+
+// 在private部分添加
+private:
+  AdjLsaBuildType m_pendingBuildType{AdjLsaBuildType::REGULAR};
+```
+
+### 2. **lsdb.cpp**
+添加新方法，保留原有scheduleAdjLsaBuild：
+```cpp
+void
+Lsdb::scheduleAdjLsaBuildWithType(AdjLsaBuildType buildType)
+{
+  m_adjBuildCount++;
+  
+  if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+    NLSR_LOG_DEBUG("Adjacency LSA not built while in hyperbolic routing state");
+    return;
+  }
+  
+  if (m_isBuildAdjLsaScheduled) {
+    // 高优先级可以抢占低优先级
+    if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN && 
+        m_pendingBuildType != AdjLsaBuildType::NEIGHBOR_DOWN) {
+      NLSR_LOG_DEBUG("High priority build preempting current schedule");
+      m_scheduler.cancel(m_scheduledAdjLsaBuild);
+      m_isBuildAdjLsaScheduled = false;
+    }
+    else {
+      if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) {
+        m_pendingBuildType = buildType;
+      }
+      NLSR_LOG_DEBUG("Rescheduling Adjacency LSA build in " << m_adjLsaBuildInterval);
+      return;
+    }
+  }
+  
+  // 设置延迟
+  ndn::time::seconds buildInterval;
+  if (buildType == AdjLsaBuildType::NEIGHBOR_DOWN) {
+    buildInterval = ndn::time::seconds(1);
+    NLSR_LOG_DEBUG("Scheduling NEIGHBOR_DOWN Adj LSA build in 1 second");
+  }
+  else {
+    buildInterval = m_adjLsaBuildInterval;
+    NLSR_LOG_DEBUG("Scheduling Adj LSA build in " << buildInterval);
+  }
+  
+  m_isBuildAdjLsaScheduled = true;
+  m_pendingBuildType = buildType;
+  
+  m_scheduledAdjLsaBuild = m_scheduler.schedule(buildInterval, [this] {
+    buildAdjLsa();
+    m_pendingBuildType = AdjLsaBuildType::REGULAR;
+  });
+}
+
+// 修改原方法调用新方法
+void
+Lsdb::scheduleAdjLsaBuild()
+{
+  scheduleAdjLsaBuildWithType(AdjLsaBuildType::REGULAR);
+}
+```
+
+### 3. **hello-protocol.cpp**
+修改processInterestTimedOut函数的else if分支：
+```cpp
+else if (status == Adjacent::STATUS_ACTIVE) {
+  m_adjacencyList.setStatusOfNeighbor(neighbor, Adjacent::STATUS_INACTIVE);
+  
+  NLSR_LOG_DEBUG("Neighbor: " << neighbor << " status changed to INACTIVE");
+  
+  onNeighborStatusChanged(neighbor, Adjacent::STATUS_INACTIVE);
+  
+  if (m_confParam.getHyperbolicState() == HYPERBOLIC_STATE_ON) {
+    m_routingTable.scheduleRoutingTableCalculation();
+  }
+  else {
+    // 使用高优先级处理失联
+    m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::NEIGHBOR_DOWN);
+  }
+}
+```
+
+### 4. **link-cost-manager.hpp**
+在OutgoingLinkState结构体中添加：
+```cpp
+struct OutgoingLinkState {
+  // ... 现有成员保持不变 ...
+  
+  // 只添加这一个新字段
+  ndn::time::steady_clock::time_point lastLsaTriggerTime;
+  
+  // ... 现有方法保持不变 ...
+};
+```
+
+### 5. **link-cost-manager.cpp**
+修改updateNeighborCost函数：
+```cpp
+void
+LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
+{
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    NLSR_LOG_ERROR("Cannot find adjacent for " << neighbor);
+    return;
+  }
+  
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+
+  if (it->second.status == Adjacent::STATUS_INACTIVE) {
+    NLSR_LOG_DEBUG("Skipping cost update for INACTIVE neighbor: " << neighbor);
+    return;
+  }
+  
+  double finalCost = rttBasedCost;
+  
+  // 负载感知算法处理（如果启用）
+  if (m_loadAwareCostCalculator) {
+    try {
+      auto metricsOpt = getLinkMetrics(neighbor);
+      if (metricsOpt) {
+        finalCost = m_loadAwareCostCalculator(neighbor, rttBasedCost, *metricsOpt);
+        NLSR_LOG_DEBUG("Load-aware cost: " << rttBasedCost << " -> " << finalCost);
+      }
+    } catch (const std::exception& e) {
+      NLSR_LOG_ERROR("Load-aware calculation failed: " << e.what());
+      finalCost = rttBasedCost;
+    }
+  }
+  
+  double oldCost = adjacent->getLinkCost();
+  
+  // 变化阈值检查
+  if (std::abs(finalCost - oldCost) / oldCost < 0.05) {
+    NLSR_LOG_TRACE("Cost change too small for " << neighbor << ", skipping update");
+    return;
+  }
+  
+  // 限流检查
+  auto now = ndn::time::steady_clock::now();
+  static constexpr auto MIN_LSA_INTERVAL = ndn::time::seconds(10);
+  
+  if (now - it->second.lastLsaTriggerTime < MIN_LSA_INTERVAL) {
+    NLSR_LOG_TRACE("Rate limiting LSA trigger for " << neighbor);
+    adjacent->setLinkCost(finalCost);
+    it->second.currentCost = finalCost;
+    return;
+  }
+  
+  // 更新成本
+  adjacent->setLinkCost(finalCost);
+  it->second.currentCost = finalCost;
+  it->second.lastLsaTriggerTime = now;
+  
+  // 只在邻居稳定时触发LSA
+  if (it->second.timeoutCount == 0) {
+    m_lsdb.scheduleAdjLsaBuildWithType(Lsdb::AdjLsaBuildType::COST_UPDATE);
+    m_routingTable.scheduleRoutingTableCalculation();
+  }
+  
+  m_costUpdates++;
+  NLSR_LOG_INFO("Updated link cost for " << neighbor 
+               << " from " << oldCost << " to " << finalCost);
+}
+```
+
+修改onNeighborStatusChanged函数：
+```cpp
+void
+LinkCostManager::onNeighborStatusChanged(const ndn::Name& neighbor, 
+                                        Adjacent::Status newStatus)
+{
+  auto it = m_outgoingLinks.find(neighbor);
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+  
+  auto& linkState = it->second;
+  Adjacent::Status oldStatus = linkState.status;
+  linkState.status = newStatus;
+  
+  NLSR_LOG_INFO("Neighbor " << neighbor << " status changed from " 
+               << oldStatus << " to " << newStatus);
+  
+  if (newStatus == Adjacent::STATUS_INACTIVE) {
+    // 清理状态
+    linkState.rttHistory.clear();
+    linkState.timeoutCount = m_confParam.getInterestRetryNumber();
+    
+    // 取消待处理的测量
+    auto measurementIt = m_pendingMeasurements.begin();
+    while (measurementIt != m_pendingMeasurements.end()) {
+      if (measurementIt->second == neighbor) {
+        measurementIt = m_pendingMeasurements.erase(measurementIt);
+      }
+      else {
+        ++measurementIt;
+      }
+    }
+    
+    NLSR_LOG_INFO("Cleaned up state for INACTIVE neighbor " << neighbor);
+    // 不触发LSA，让HelloProtocol处理
+  }
+  else if (newStatus == Adjacent::STATUS_ACTIVE && 
+           oldStatus != Adjacent::STATUS_ACTIVE) {
+    linkState.timeoutCount = 0;
+    linkState.lastSuccess = ndn::time::steady_clock::now();
+    
+    if (m_isActive) {
+      scheduleRttMeasurement(neighbor);
+    }
+  }
+}
+```
+
+## 编译测试步骤
+
+```bash
+# 1. 清理旧编译
+./waf clean
+
+# 2. 配置debug模式
+./waf configure --debug
+
+# 3. 编译
+./waf
+
+# 4. 如果编译成功，测试运行
+sudo NDN_LOG='nlsr.Lsdb=DEBUG:nlsr.LinkCostManager=DEBUG:nlsr.HelloProtocol=DEBUG' \
+  nlsr -f nlsr.conf
+```
+
+这些修改保持了最小化改动原则，只在必要的地方添加了优先级控制机制。
+
+
+

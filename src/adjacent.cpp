@@ -31,6 +31,7 @@ Adjacent::Adjacent()
   : m_name()
   , m_faceUri()
   , m_linkCost(DEFAULT_LINK_COST)
+  , m_originalLinkCost(DEFAULT_LINK_COST)
   , m_status(STATUS_INACTIVE)
   , m_interestTimedOutNo(0)
   , m_faceId(0)
@@ -46,6 +47,7 @@ Adjacent::Adjacent(const ndn::Name& an)
   : m_name(an)
   , m_faceUri()
   , m_linkCost(DEFAULT_LINK_COST)
+  , m_originalLinkCost(DEFAULT_LINK_COST)
   , m_status(STATUS_INACTIVE)
   , m_interestTimedOutNo(0)
   , m_faceId(0)
@@ -56,6 +58,7 @@ Adjacent::Adjacent(const ndn::Name& an, const ndn::FaceUri& faceUri, double lc,
                    Status s, uint32_t iton, uint64_t faceId)
   : m_name(an)
   , m_faceUri(faceUri)
+  , m_originalLinkCost(lc)
   , m_status(s)
   , m_interestTimedOutNo(iton)
   , m_faceId(faceId)
@@ -120,6 +123,7 @@ Adjacent::wireDecode(const ndn::Block& wire)
   m_name.clear();
   m_faceUri = ndn::FaceUri();
   m_linkCost = 0;
+  m_originalLinkCost = 0;
 
   m_wire = wire;
 
@@ -149,6 +153,7 @@ Adjacent::wireDecode(const ndn::Block& wire)
 
   if (val != m_wire.elements_end() && val->type() == nlsr::tlv::Cost) {
     m_linkCost = ndn::encoding::readDouble(*val);
+    m_originalLinkCost = m_linkCost;  // LSA解码时，原始成本等于解码的成本
     ++val;
   }
   else {

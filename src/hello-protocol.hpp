@@ -111,7 +111,12 @@ private:
     */
    void
    onContent(const ndn::Interest& interest, const ndn::Data& data);
- 
+
+   //2025.09.22 新增处理
+   void
+   restoreRouteForHelloRecovery(const ndn::Name& neighbor);
+
+
  PUBLIC_WITH_TESTS_ELSE_PRIVATE:
  
    /*! \brief Change a neighbor's status

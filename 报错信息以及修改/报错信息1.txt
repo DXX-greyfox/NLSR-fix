@@ -1,0 +1,280 @@
+/usr/include/boost/log/sources/global_logger_storage.hpp:105:9: error: ‘shared_ptr’ was not declared in this scope
+  105 |         shared_ptr< logger_holder< typename TagT::logger_type > >
+      |         ^~~~~~~~~~
+/usr/include/boost/log/sources/global_logger_storage.hpp:105:9: note: suggested alternatives:
+In file included from /usr/include/c++/10/bits/shared_ptr.h:52,
+                 from /usr/include/c++/10/memory:84,
+                 from ../src/common.hpp:28,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/c++/10/bits/shared_ptr_base.h:351:11: note:   ‘std::shared_ptr’
+  351 |     class shared_ptr;
+      |           ^~~~~~~~~~
+/usr/include/c++/10/bits/shared_ptr_base.h:351:11: note:   ‘std::shared_ptr’
+In file included from /usr/include/boost/exception/detail/exception_ptr.hpp:13,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:25,
+                 from /usr/local/include/ndn-cxx/name.hpp:25,
+                 from ../src/common.hpp:32,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/boost/exception/exception.hpp:15:44: note:   ‘boost::shared_ptr’
+   15 | namespace boost { template <class T> class shared_ptr; }
+      |                                            ^~~~~~~~~~
+/usr/include/boost/exception/exception.hpp:15:44: note:   ‘boost::shared_ptr’
+In file included from /usr/include/c++/10/bits/shared_ptr.h:52,
+                 from /usr/include/c++/10/memory:84,
+                 from ../src/common.hpp:28,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/c++/10/bits/shared_ptr_base.h:351:11: note:   ‘std::shared_ptr’
+  351 |     class shared_ptr;
+      |           ^~~~~~~~~~
+In file included from /usr/include/boost/log/common.hpp:24,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/update/prefix-update-processor.cpp:23:
+/usr/include/boost/log/sources/global_logger_storage.hpp:105:65: error: template argument 2 is invalid
+  105 |         shared_ptr< logger_holder< typename TagT::logger_type > >
+      |                                                                 ^
+/usr/include/boost/log/sources/global_logger_storage.hpp:106:5: error: expected ‘{’ before ‘>’ token
+  106 |     >
+      |     ^
+In file included from /usr/include/boost/log/utility/formatting_ostream.hpp:33,
+                 from /usr/include/boost/log/sources/record_ostream.hpp:36,
+                 from /usr/include/boost/log/common.hpp:25,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/update/prefix-update-processor.cpp:23:
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:286:88: error: ‘nlsr::boost::true_type’ has not been declared
+  286 |     size_type length_until_boundary(const char_type* s, size_type, size_type max_size, boost::true_type) const
+      |                                                                                        ^~~~~
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:295:97: error: ‘nlsr::boost::false_type’ has not been declared
+  295 |     static size_type length_until_boundary(const char_type* s, size_type n, size_type max_size, boost::false_type)
+      |                                                                                                 ^~~~~
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:295:22: error: ‘static nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::length_until_boundary(const char_type*, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, int)’ cannot be overloaded with ‘nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::length_until_boundary(const char_type*, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, int) const’
+  295 |     static size_type length_until_boundary(const char_type* s, size_type n, size_type max_size, boost::false_type)
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:286:15: note: previous declaration ‘nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::length_until_boundary(const char_type*, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, int) const’
+  286 |     size_type length_until_boundary(const char_type* s, size_type, size_type max_size, boost::true_type) const
+      |               ^~~~~~~~~~~~~~~~~~~~~
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp: In member function ‘nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::length_until_boundary(const char_type*, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type, nlsr::boost::log::v2_mt_posix::aux::basic_ostringstreambuf<CharT, TraitsT, AllocatorT>::size_type) const’:
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:281:61: error: ‘integral_constant’ is not a member of ‘nlsr::boost’
+  281 |         return length_until_boundary(s, n, max_size, boost::integral_constant< bool, sizeof(char_type) == 1u >());
+      |                                                             ^~~~~~~~~~~~~~~~~
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:281:61: note: suggested alternatives:
+In file included from /usr/include/c++/10/bits/move.h:57,
+                 from /usr/include/c++/10/bits/stl_function.h:60,
+                 from /usr/include/c++/10/functional:49,
+                 from ../src/common.hpp:26,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/c++/10/type_traits:57:12: note:   ‘std::integral_constant’
+   57 |     struct integral_constant
+      |            ^~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/type_traits/is_nothrow_move_constructible.hpp:17,
+                 from /usr/include/boost/exception/detail/error_info_impl.hpp:11,
+                 from /usr/include/boost/exception/info.hpp:12,
+                 from /usr/include/boost/exception/detail/exception_ptr.hpp:14,
+                 from /usr/include/boost/exception_ptr.hpp:9,
+                 from /usr/local/include/ndn-cxx/util/exception.hpp:29,
+                 from /usr/local/include/ndn-cxx/detail/common.hpp:118,
+                 from /usr/local/include/ndn-cxx/encoding/tlv.hpp:25,
+                 from /usr/local/include/ndn-cxx/encoding/block.hpp:29,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:25,
+                 from /usr/local/include/ndn-cxx/name.hpp:25,
+                 from ../src/common.hpp:32,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/boost/type_traits/integral_constant.hpp:53:11: note:   ‘boost::integral_constant’
+   53 |    struct integral_constant
+      |           ^~~~~~~~~~~~~~~~~
+In file included from /usr/include/c++/10/bits/move.h:57,
+                 from /usr/include/c++/10/bits/stl_function.h:60,
+                 from /usr/include/c++/10/functional:49,
+                 from ../src/common.hpp:26,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/c++/10/type_traits:57:12: note:   ‘std::integral_constant’
+   57 |     struct integral_constant
+      |            ^~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/move/detail/meta_utils.hpp:22,
+                 from /usr/include/boost/move/utility_core.hpp:31,
+                 from /usr/include/boost/move/default_delete.hpp:25,
+                 from /usr/include/boost/move/unique_ptr.hpp:25,
+                 from /usr/include/boost/chrono/detail/scan_keyword.hpp:22,
+                 from /usr/include/boost/chrono/io_v1/chrono_io.hpp:26,
+                 from /usr/include/boost/chrono/chrono_io.hpp:29,
+                 from /usr/include/boost/chrono/include.hpp:16,
+                 from /usr/include/boost/chrono.hpp:17,
+                 from /usr/local/include/ndn-cxx/util/time.hpp:26,
+                 from /usr/local/include/ndn-cxx/name-component.hpp:27,
+                 from /usr/local/include/ndn-cxx/name.hpp:25,
+                 from ../src/common.hpp:32,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/boost/move/detail/meta_utils_core.hpp:93:8: note:   ‘boost::move_detail::integral_constant’
+   93 | struct integral_constant
+      |        ^~~~~~~~~~~~~~~~~
+In file included from /usr/include/c++/10/bits/move.h:57,
+                 from /usr/include/c++/10/bits/stl_function.h:60,
+                 from /usr/include/c++/10/functional:49,
+                 from ../src/common.hpp:26,
+                 from ../src/conf-parameter.hpp:25,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/include/c++/10/type_traits:57:12: note:   ‘std::integral_constant’
+   57 |     struct integral_constant
+      |            ^~~~~~~~~~~~~~~~~
+In file included from /usr/local/include/ndn-cxx/util/scope.hpp:26,
+                 from /usr/local/include/ndn-cxx/util/signal/signal.hpp:25,
+                 from /usr/local/include/ndn-cxx/security/validation-state.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validation-policy.hpp:28,
+                 from /usr/local/include/ndn-cxx/security/validator.hpp:29,
+                 from /usr/local/include/ndn-cxx/security/validator-config.hpp:25,
+                 from ../src/conf-parameter.hpp:31,
+                 from ../src/communication/sync-logic-handler.hpp:25,
+                 from ../src/lsdb.hpp:25,
+                 from ../src/update/command-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.hpp:25,
+                 from ../src/update/prefix-update-processor.cpp:22:
+/usr/local/include/ndn-cxx/detail/nonstd/scope-lite.hpp:377:33: note:   ‘nonstd::scope::std11::integral_constant’
+  377 | template< class T, T v > struct integral_constant { enum { value = v }; };
+      |                                 ^~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/log/utility/formatting_ostream.hpp:33,
+                 from /usr/include/boost/log/sources/record_ostream.hpp:36,
+                 from /usr/include/boost/log/common.hpp:25,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/update/prefix-update-processor.cpp:23:
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:281:80: error: expected primary-expression before ‘bool’
+  281 |         return length_until_boundary(s, n, max_size, boost::integral_constant< bool, sizeof(char_type) == 1u >());
+      |                                                                                ^~~~
+/usr/include/boost/log/detail/attachable_sstream_buf.hpp:281:112: error: expected primary-expression before ‘)’ token
+  281 |         return length_until_boundary(s, n, max_size, boost::integral_constant< bool, sizeof(char_type) == 1u >());
+      |                                                                                                                ^
+In file included from /usr/include/boost/log/utility/formatting_ostream.hpp:34,
+                 from /usr/include/boost/log/sources/record_ostream.hpp:36,
+                 from /usr/include/boost/log/common.hpp:25,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/update/prefix-update-processor.cpp:23:
+/usr/include/boost/log/detail/code_conversion.hpp: At global scope:
+/usr/include/boost/log/detail/code_conversion.hpp:72:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+   72 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:72:35: error: expected unqualified-id before ‘<’ token
+   72 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:83:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+   83 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:83:35: error: expected unqualified-id before ‘<’ token
+   83 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:91:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+   91 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:91:35: error: expected unqualified-id before ‘<’ token
+   91 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:98:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+   98 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:98:35: error: expected unqualified-id before ‘<’ token
+   98 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) == sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:106:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+  106 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:106:35: error: expected unqualified-id before ‘<’ token
+  106 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:114:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+  114 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:114:35: error: expected unqualified-id before ‘<’ token
+  114 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:122:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+  122 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:122:35: error: expected unqualified-id before ‘<’ token
+  122 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                                   ^
+/usr/include/boost/log/detail/code_conversion.hpp:130:24: error: ‘enable_if_c’ in namespace ‘nlsr::boost’ does not name a template type
+  130 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                        ^~~~~~~~~~~
+/usr/include/boost/log/detail/code_conversion.hpp:130:35: error: expected unqualified-id before ‘<’ token
+  130 | inline typename boost::enable_if_c< is_character_type< SourceCharT >::value && is_character_type< TargetCharT >::value && sizeof(SourceCharT) != sizeof(TargetCharT), bool >::type
+      |                                   ^
+In file included from /usr/include/boost/log/sources/record_ostream.hpp:36,
+                 from /usr/include/boost/log/common.hpp:25,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/update/prefix-update-processor.cpp:23:
+/usr/include/boost/log/utility/formatting_ostream.hpp:81:31: error: expected template-name before ‘<’ token
+   81 |     public boost::disable_if_c< boost::is_scalar< typename boost::remove_cv< T >::type >::value, R >
+      |                               ^
+/usr/include/boost/log/utility/formatting_ostream.hpp:81:31: error: expected ‘{’ before ‘<’ token
+/usr/include/boost/log/utility/formatting_ostream.hpp:87:30: error: expected template-name before ‘<’ token
+   87 |     public boost::enable_if_c< boost::is_enum< typename boost::remove_cv< T >::type >::value, R >
+      |                              ^
+/usr/include/boost/log/utility/formatting_ostream.hpp:87:30: error: expected ‘{’ before ‘<’ token
+/usr/include/boost/log/utility/formatting_ostream.hpp:93:61: error: ‘remove_cv’ in namespace ‘nlsr::boost’ does not name a template type
+   93 |     public disable_if_streamable_char_type< typename boost::remove_cv< T >::type, R >
+      |                                                             ^~~~~~~~~
+/usr/include/boost/log/utility/formatting_ostream.hpp:93:70: error: expected template-argument before ‘<’ token
+   93 |     public disable_if_streamable_char_type< typename boost::remove_cv< T >::type, R >
+      |                                                                      ^
+/usr/include/boost/log/utility/formatting_ostream.hpp:93:70: error: expected ‘>’ before ‘<’ token
+/usr/include/boost/log/utility/formatting_ostream.hpp:93:85: error: wrong number of template arguments (1, should be 2)
+   93 |     public disable_if_streamable_char_type< typename boost::remove_cv< T >::type, R >
+      |                                                                                     ^
+/usr/include/boost/log/utility/formatting_ostream.hpp:52:8: note: provided for ‘template<class T, class R> struct nlsr::boost::log::v2_mt_posix::aux::disable_if_streamable_char_type’
+   52 | struct disable_if_streamable_char_type { typedef R type; };
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/log/sources/record_ostream.hpp:36,
+                 from /usr/include/boost/log/common.hpp:25,
+                 from /usr/local/include/ndn-cxx/util/logger.hpp:31,
+                 from ../src/logger.hpp:33,
+                 from ../src/update/prefix-update-processor.cpp:23:
+/usr/include/boost/log/utility/formatting_ostream.hpp: In member function ‘typename nlsr::boost::log::v2_mt_posix::aux::enable_if_streamable_char_type<OtherCharT, nlsr::boost::log::v2_mt_posix::basic_formatting_ostream<CharT, TraitsT, AllocatorT>&>::type nlsr::boost::log::v2_mt_posix::basic_formatting_ostream<CharT, TraitsT, AllocatorT>::write(const OtherCharT*, std::streamsize)’:
+/usr/include/boost/log/utility/formatting_ostream.hpp:410:27: error: ‘code_convert’ is not a member of ‘nlsr::boost::log::v2_mt_posix::aux’; did you mean ‘code_convert_impl’?
+  410 |                 if (!aux::code_convert(p, static_cast< std::size_t >(size), *storage, m_streambuf.max_size(), m_stream.getloc()))
+      |                           ^~~~~~~~~~~~

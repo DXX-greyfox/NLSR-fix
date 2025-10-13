@@ -89,10 +89,11 @@
      double currentCost;
      uint32_t timeoutCount;
      ndn::time::steady_clock::time_point lastSuccess;
+     ndn::time::steady_clock::time_point lastLsaTriggerTime;
      std::deque<RttMeasurement> rttHistory;
      
      //最大保存样本数量
-     static constexpr size_t MAX_RTT_SAMPLES = 6;
+     static constexpr size_t MAX_RTT_SAMPLES = 3;
      
      bool isStable() const {
        return status == Adjacent::STATUS_ACTIVE && 
@@ -240,11 +241,12 @@
    uint32_t m_nextSequenceNumber;
    
  
-   // Configuration Parameters
-   ndn::time::steady_clock::duration m_measurementInterval = ndn::time::seconds(10);
-   ndn::time::milliseconds m_measurementTimeout = ndn::time::seconds(1);
-   double m_costChangeThreshold = 0.01;
-   double m_maxCostMultiplier = 3.0;
+   // Configuration Parameters 相关变化阈值参数
+// ✅ 配置参数
+  ndn::time::steady_clock::duration m_measurementInterval = ndn::time::seconds(10);
+  ndn::time::milliseconds m_measurementTimeout = ndn::time::seconds(1);
+  double m_costChangeThreshold = 0.05;
+  double m_maxCostMultiplier = 2.0;
  
    // Statistics
    uint64_t m_totalMeasurements = 0;
@@ -282,7 +284,7 @@
   /**
    * @brief 基于超时情况计算可靠性性能分数
    * @param linkState 链路状态引用
-   * @return 可靠性性能分数 (0.0=很可靠, 1.0=很不可靠)
+   * @return 可靠性性能分数 (0.0=很可靠, 1.0=很不可靠)//后期再修改完善
    */
   double calculateReliabilityPerformanceScore(const OutgoingLinkState& linkState);
   

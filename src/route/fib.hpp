@@ -131,12 +131,22 @@ public:
   writeLog();
 
 private:
-  /*! \brief Indicates whether a prefix is a direct neighbor or not.
-   *
-   * \return Whether the name is NOT associated with a direct neighbor
+  /*! \brief Check if a prefix should be registered/updated in NFD.
+   * 
+   * All routing prefixes (including ACTIVE neighbors) should be registered.
+   * \return true if the prefix should be written to NFD
    */
   bool
-  isNotNeighbor(const ndn::Name& name);
+  shouldRegister(const ndn::Name& name) const;//注册机制
+
+  /*! \brief Check if a prefix should be unregistered from NFD.
+   * 
+   * Only non-neighbor or INACTIVE neighbor prefixes can be unregistered.
+   * ACTIVE neighbors are protected from cleanup.
+   * \return true if the prefix can be removed from NFD
+   */
+  bool
+  shouldUnregister(const ndn::Name& name) const;//注销机制
 
   /*! \brief Does one half of the updating of a FibEntry with new next-hops.
    *

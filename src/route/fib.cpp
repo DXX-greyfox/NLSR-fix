@@ -50,30 +50,26 @@ Fib::remove(const ndn::Name& name)
   NLSR_LOG_DEBUG("Fib::remove called");
   auto it = m_table.find(name);
 
-  // Only unregister the prefix if it ISN'T a neighbor.
-  if (it != m_table.end() && isNotNeighbor((it->second).name)) {
+  // Only unregister if it's not an ACTIVE neighbor
+  if (it != m_table.end() && shouldUnregister((it->second).name)) {
     for (const auto& nexthop : (it->second).nexthopSet) {
       unregisterPrefix((it->second).name, nexthop.getConnectingFaceUri());
     }
     m_table.erase(it);
   }
 }
-
 void
 Fib::addNextHopsToFibEntryAndNfd(FibEntry& entry, const NextHopsUriSortedSet& hopsToAdd)
 {
   const ndn::Name& name = entry.name;
-
-  bool shouldRegister = isNotNeighbor(name);
+  bool shouldReg = shouldRegister(name);
 
   for (const auto& hop : hopsToAdd)
   {
-    // Add nexthop to FIB entry
     NLSR_LOG_DEBUG("Adding " << hop.getConnectingFaceUri() << " to " << entry.name);
     entry.nexthopSet.addNextHop(hop);
 
-    if (shouldRegister) {
-      // Add nexthop to NDN-FIB
+    if (shouldReg) {
       registerPrefix(name, ndn::FaceUri(hop.getConnectingFaceUri()),
                      hop.getRouteCostAsAdjustedInteger(),
                      ndn::time::seconds(m_refreshTime + GRACE_PERIOD),
@@ -131,10 +127,9 @@ Fib::update(const ndn::Name& name, const NexthopList& allHops)
                         std::inserter(hopsToRemove, hopsToRemove.begin()),
                         NextHopUriSortedComparator());
 
-    bool isUpdatable = isNotNeighbor(entry.name);
-    // Remove the uninstalled next hops from NFD and FIB entry
+    bool canUnregister = shouldUnregister(entry.name);
     for (const auto& hop : hopsToRemove){
-      if (isUpdatable) {
+      if (canUnregister) {
         unregisterPrefix(entry.name, hop.getConnectingFaceUri());
       }
       NLSR_LOG_DEBUG("Removing " << hop.getConnectingFaceUri() << " from " << entry.name);
@@ -148,7 +143,7 @@ Fib::update(const ndn::Name& name, const NexthopList& allHops)
 
   if (entryIt != m_table.end() &&
       !entryIt->second.refreshEventId &&
-      isNotNeighbor(entryIt->second.name)) {
+      shouldRegister(entryIt->second.name)) {
     scheduleEntryRefresh(entryIt->second, [this] (FibEntry& entry) { scheduleLoop(entry); });
   }
 }
@@ -164,9 +159,22 @@ Fib::getNumberOfFacesForName(const NexthopList& nextHopList)
 }
 
 bool
-Fib::isNotNeighbor(const ndn::Name& name)
+Fib::shouldRegister(const ndn::Name& name) const
 {
-  return !m_adjacencyList.isNeighbor(name);
+  // All routing prefixes should be registered to NFD, including ACTIVE neighbors
+  return true;
+}
+
+bool
+Fib::shouldUnregister(const ndn::Name& name) const
+{
+  // Check if this is an ACTIVE neighbor
+  auto it = m_adjacencyList.findAdjacent(name);
+  if (it == m_adjacencyList.end()) {
+    return true; // Not a neighbor, can unregister
+  }
+  // Only INACTIVE neighbors can be unregistered; ACTIVE neighbors are protected
+  return it->getStatus() != Adjacent::STATUS_ACTIVE;
 }
 
 void
@@ -195,7 +203,7 @@ Fib::registerPrefix(const ndn::Name& namePrefix, const ndn::FaceUri& faceUri,
     NLSR_LOG_WARN("Error: No Face Id for face uri: " << faceUri);
   }
 }
-
+//注册成功
 void
 Fib::onRegistrationSuccess(const ndn::nfd::ControlParameters& param,
                            const ndn::FaceUri& faceUri)

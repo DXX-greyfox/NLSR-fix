@@ -103,6 +103,13 @@ public:
   void
   setLinkCost(double lc);
 
+  // 获取原始配置的链路成本（用于失联恢复）
+  double
+  getOriginalLinkCost() const
+  {
+    return m_originalLinkCost;
+  }
+
   Status
   getStatus() const
   {
@@ -193,6 +200,8 @@ private:
   ndn::FaceUri m_faceUri;
   /*! m_linkCost The semi-arbitrary cost to traverse the link. */
   double m_linkCost;
+  /*! m_originalLinkCost The original cost from nlsr.conf (for recovery) */
+  double m_originalLinkCost;
   /*! m_status Whether the neighbor is active or not */
   Status m_status = STATUS_UNKNOWN;
   /*! m_interestTimedOutNo How many failed Hello interests we have sent since the last reply */

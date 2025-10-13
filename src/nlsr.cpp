@@ -101,7 +101,7 @@ Nlsr::Nlsr(ndn::Face& face, ndn::KeyChain& keyChain, ConfParameter& confParam)
 
   // ✅ 教学要点：HelloProtocol事件连接的重要性
   // 这些连接让LinkCostManager能够实时感知邻居状态变化
-  // 这是整个智能路由系统的神经网络，连接了协议层和路由层
+  // 以下信号函数是HelloProtocol的事件连接，用于触发LinkCostManager的更新
   m_helloProtocol.onDataReceived.connect(
    [this](const ndn::Name& neighbor) { onHelloDataReceived(neighbor); });
 
@@ -166,7 +166,7 @@ Nlsr::onHelloDataReceived(const ndn::Name& neighbor)
     m_linkCostManager->onHelloDataReceived(neighbor);
   }
 }
-
+/************这是有关linkcost的超时处理函数 */
 void
 Nlsr::onHelloTimeout(const ndn::Name& neighbor, uint32_t timeoutCount)
 {

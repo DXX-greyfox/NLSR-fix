@@ -19,9 +19,9 @@ LinkCostManager::LinkCostManager(ndn::Face& face, ndn::KeyChain& keyChain,
   , m_confParam(confParam)
   , m_adjacencyList(adjacencyList)
   , m_lsdb(lsdb)
-  , m_routingTable(routingTable)  // ✅ 初始化RoutingTable
+  , m_routingTable(routingTable)  //初始化RoutingTable
   , m_fib(fib)
-  , m_scheduler(face.getIoContext())  // // ✅ 正确：使用getIoContext()
+  , m_scheduler(face.getIoContext())  // 正确：使用getIoContext()
   , m_isActive(false)
   , m_nextSequenceNumber(1)
 {
@@ -61,7 +61,7 @@ LinkCostManager::initialize()
     OutgoingLinkState linkState;
     linkState.neighbor = adjacent.getName();
     linkState.status = adjacent.getStatus();
-    linkState.originalCost = adjacent.getLinkCost();
+    linkState.originalCost = adjacent.getOriginalLinkCost();  // 使用原始配置成本
     linkState.currentCost = adjacent.getLinkCost();
     linkState.timeoutCount = adjacent.getInterestTimedOutNo();
     linkState.lastSuccess = ndn::time::steady_clock::now();
@@ -85,7 +85,7 @@ LinkCostManager::start()
   
   m_isActive = true;
   //延迟设定事件后，再开始RTT测量
-  m_scheduler.schedule(ndn::time::seconds(90), [this] {
+  m_scheduler.schedule(ndn::time::seconds(30), [this] {
     for (auto& pair : m_outgoingLinks) {
       if (pair.second.isStable()) {
         scheduleRttMeasurement(pair.first);
@@ -127,7 +127,7 @@ LinkCostManager::stop()
   NLSR_LOG_INFO("Link Cost Manager stopped and original costs restored");
 }
 
-// ✅ 实现所有事件处理函数
+// 实现所有事件处理函数
 void
 LinkCostManager::onHelloInterestSent(const ndn::Name& neighbor)
 {
@@ -155,6 +155,7 @@ LinkCostManager::onHelloDataReceived(const ndn::Name& neighbor)
   }
 } 
 
+/******************检测到hellotimeout时的处理函数 */
 void
 LinkCostManager::onHelloTimeout(const ndn::Name& neighbor, uint32_t timeouts)
 {
@@ -173,29 +174,58 @@ LinkCostManager::onHelloTimeout(const ndn::Name& neighbor, uint32_t timeouts)
   }
 }
 
+/*收到邻居状态变化通知时的处理函数*/
 void
-LinkCostManager::onNeighborStatusChanged(const ndn::Name& neighbor, Adjacent::Status newStatus)
+LinkCostManager::onNeighborStatusChanged(const ndn::Name& neighbor, 
+                                        Adjacent::Status newStatus)
 {
   auto it = m_outgoingLinks.find(neighbor);
-  if (it != m_outgoingLinks.end()) {
-    auto& linkState = it->second;
-    Adjacent::Status oldStatus = linkState.status;
-    linkState.status = newStatus;
+  if (it == m_outgoingLinks.end()) {
+    return;
+  }
+  
+  auto& linkState = it->second;
+  Adjacent::Status oldStatus = linkState.status;
+  linkState.status = newStatus;
+  
+  NLSR_LOG_INFO("Neighbor " << neighbor << " status: " 
+               << oldStatus << " -> " << newStatus);
+  
+  if (newStatus == Adjacent::STATUS_INACTIVE) {
+    // 清理状态
+    linkState.rttHistory.clear();//清除RTT历史记录
+    linkState.timeoutCount = m_confParam.getInterestRetryNumber();
     
-    NLSR_LOG_INFO("Neighbor " << neighbor << " status changed from " 
-                 << oldStatus << " to " << newStatus);
-    
-    if (newStatus == Adjacent::STATUS_INACTIVE) {
-      linkState.rttHistory.clear();
-      linkState.timeoutCount = m_confParam.getInterestRetryNumber();
-    }
-    else if (newStatus == Adjacent::STATUS_ACTIVE && oldStatus != Adjacent::STATUS_ACTIVE) {
-      linkState.timeoutCount = 0;
-      linkState.lastSuccess = ndn::time::steady_clock::now();
-      
-      if (m_isActive) {
-        scheduleRttMeasurement(neighbor);
+    // 取消所有待处理的RTT测量
+    auto measurementIt = m_pendingMeasurements.begin();
+    while (measurementIt != m_pendingMeasurements.end()) {
+      if (measurementIt->second.first == neighbor) {
+        measurementIt = m_pendingMeasurements.erase(measurementIt);
       }
+      else {
+        ++measurementIt;
+      }
+    }
+    
+    NLSR_LOG_INFO("Cleaned up state for INACTIVE neighbor " << neighbor);
+    // 不在这里触发LSA，由HelloProtocol处理
+  }
+  else if (newStatus == Adjacent::STATUS_ACTIVE && 
+           oldStatus != Adjacent::STATUS_ACTIVE) {
+    // 恢复到原始配置成本
+    auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+    if (adjacent != m_adjacencyList.end()) {
+      adjacent->setLinkCost(adjacent->getOriginalLinkCost());
+      linkState.currentCost = adjacent->getOriginalLinkCost();
+      NLSR_LOG_INFO("Restored neighbor " << neighbor << " to original cost " 
+                   << adjacent->getOriginalLinkCost());
+    }
+    
+    linkState.timeoutCount = 0;
+    linkState.lastSuccess = ndn::time::steady_clock::now();
+    
+    if (m_isActive) {
+      scheduleRttMeasurement(neighbor);
     }
   }
 }
@@ -255,6 +285,7 @@ LinkCostManager::performRttMeasurement(const ndn::Name& neighbor)
   NLSR_LOG_TRACE("RTT probe sent to " << neighbor << " with seq " << seq);
 }
 
+//出现异常值的处理方法
 void
 LinkCostManager::handleRttResponse(const ndn::Name& neighbor, uint32_t seq,
                                   ndn::time::steady_clock::time_point sendTime,
@@ -272,9 +303,15 @@ LinkCostManager::handleRttResponse(const ndn::Name& neighbor, uint32_t seq,
   m_successfulMeasurements++;
   
   auto rttMs = ndn::time::duration_cast<ndn::time::milliseconds>(rtt).count();
-  if (rttMs < 1 || rttMs > 5000) {
-    NLSR_LOG_WARN("Invalid RTT measurement " << rttMs << "ms for " << neighbor);
-    return;
+  // ✅ 关键修复：修正异常值后继续处理，而不是丢弃
+  if (rttMs < 1) {
+    NLSR_LOG_DEBUG("RTT too small (" << rttMs << "ms) for " << neighbor 
+                  << ", using minimum 1ms");
+    rttMs = 1;  // 设置最小值，继续处理，避免警告
+  } else if (rttMs > 5000) {
+    NLSR_LOG_WARN("RTT too large (" << rttMs << "ms) for " << neighbor 
+                 << ", discarding measurement");
+    return;  // 只有超大值才丢弃
   }
   
   auto linkIt = m_outgoingLinks.find(neighbor);
@@ -294,7 +331,7 @@ LinkCostManager::handleRttResponse(const ndn::Name& neighbor, uint32_t seq,
                     << ": performance=" << std::fixed << std::setprecision(3) 
                     << performance << " (RTT=" << rttMs << "ms)");
     }
-    
+    //样本数据收集个数
     if (linkIt->second.rttHistory.size() >= 3) {
       double newCost = calculateNewCost(neighbor);
       if (shouldUpdateCost(neighbor, newCost)) {
@@ -318,11 +355,28 @@ double
 LinkCostManager::calculateNewCost(const ndn::Name& neighbor)
 {
   auto it = m_outgoingLinks.find(neighbor);
-  if (it == m_outgoingLinks.end() || it->second.rttHistory.empty()) {
-    return 0.0;
+  
+  // ✅ 修正：统一处理不参与计算的情况
+  if (it == m_outgoingLinks.end()) {
+    NLSR_LOG_DEBUG("No link state found for " << neighbor << ", not participating in cost calculation");
+    return -1.0; // 邻居不存在，不参与计算
+  }
+  
+  if (it->second.status == Adjacent::STATUS_INACTIVE) {
+    NLSR_LOG_DEBUG("Neighbor " << neighbor << " is INACTIVE, skipping cost calculation");
+    return -1.0; // 邻居INACTIVE，不参与计算
   }
   
   const auto& linkState = it->second;
+  
+  // ACTIVE但无RTT数据：使用原始配置成本
+  if (linkState.rttHistory.empty()) {
+    NLSR_LOG_DEBUG("No RTT data for ACTIVE neighbor " << neighbor 
+                  << ", using original cost: " << linkState.originalCost);
+    return linkState.originalCost;
+  }
+  
+  // ACTIVE且有RTT数据：进行动态RTT-based计算
   auto avgRtt = linkState.getAverageRtt();
   auto avgRttMs = ndn::time::duration_cast<ndn::time::milliseconds>(avgRtt).count();
   
@@ -331,7 +385,7 @@ LinkCostManager::calculateNewCost(const ndn::Name& neighbor)
   
   newCost = std::min(newCost, linkState.originalCost * m_maxCostMultiplier);
   
-  return newCost;
+  return std::round(newCost);
 }
 
 bool
@@ -349,7 +403,7 @@ LinkCostManager::shouldUpdateCost(const ndn::Name& neighbor, double newCost)
 }
 
 
-// ✅ 修正：updateNeighborCost实现
+// ✅ 修正：updateNeighborCost实现,逻辑检查
 void
 LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCost)
 {
@@ -363,54 +417,66 @@ LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCo
   if (it == m_outgoingLinks.end()) {
     return;
   }
+
+  // 检查邻居状态
+  if (it->second.status == Adjacent::STATUS_INACTIVE) {
+    NLSR_LOG_DEBUG("Skipping cost update for INACTIVE neighbor: " << neighbor);
+    return;
+  }
   
   double finalCost = rttBasedCost;
   
-  // ✅ 关键：如果有负载感知算法，让它来增强成本计算
+  // 负载感知计算（如果启用）
   if (m_loadAwareCostCalculator) {
     try {
       auto metricsOpt = getLinkMetrics(neighbor);
       if (metricsOpt) {
         finalCost = m_loadAwareCostCalculator(neighbor, rttBasedCost, *metricsOpt);
-        
-        NLSR_LOG_DEBUG("Load-aware cost calculation for " << neighbor 
-                      << ": RTT-based=" << rttBasedCost 
-                      << " -> Enhanced=" << finalCost);
+        NLSR_LOG_DEBUG("Load-aware cost calculation: " << rttBasedCost 
+                      << " -> " << finalCost);
       }
     } catch (const std::exception& e) {
-      NLSR_LOG_ERROR("Load-aware cost calculation failed for " << neighbor 
-                    << ": " << e.what() << ". Using RTT-based cost.");
+      NLSR_LOG_ERROR("Load-aware calculation failed: " << e.what());
       finalCost = rttBasedCost;
     }
   }
   
   double oldCost = adjacent->getLinkCost();
   
-  // ✅ 检查是否真的需要更新（避免频繁更新）
-  if (std::abs(finalCost - oldCost) / oldCost < 0.02) {
-    NLSR_LOG_TRACE("Cost change too small for " << neighbor << ", skipping update");
+  // 检查变化阈值
+  if (std::abs(finalCost - oldCost) / oldCost < 0.05) {
+    NLSR_LOG_TRACE("Cost change too small, skipping update");
     return;
   }
   
-  // ✅ 保持完整的NLSR更新链条
+  // 限流检查
+  auto now = ndn::time::steady_clock::now();
+  static constexpr auto MIN_LSA_INTERVAL = ndn::time::seconds(10);
+  
+  if (now - it->second.lastLsaTriggerTime < MIN_LSA_INTERVAL) {
+    NLSR_LOG_TRACE("Rate limiting LSA trigger for " << neighbor);
+    // 更新成本但不触发LSA
+    adjacent->setLinkCost(finalCost);
+    it->second.currentCost = finalCost;
+    return;
+  }
+  
+  // 更新成本
   adjacent->setLinkCost(finalCost);
   it->second.currentCost = finalCost;
+  it->second.lastLsaTriggerTime = now;
   
-  // ✅ 触发完整的系统更新
-  m_lsdb.scheduleAdjLsaBuild();
-  m_routingTable.scheduleRoutingTableCalculation();
-  onNeighborCostUpdated(neighbor, finalCost);
+  // 只在邻居稳定时触发LSA构建
+  if (it->second.timeoutCount == 0) {
+    m_lsdb.scheduleAdjLsaBuild();
+    m_routingTable.scheduleRoutingTableCalculation();
+    
+    NLSR_LOG_INFO("Triggered COST_UPDATE LSA build for " << neighbor);
+  }
   
   m_costUpdates++;
-  
-  NLSR_LOG_INFO("Updated link cost for " << neighbor 
-               << " from " << oldCost << " to " << finalCost
-               << (m_loadAwareCostCalculator ? " (load-aware)" : " (standard)"));
-               
-  // ✅ 验证更新成功
-  m_scheduler.schedule(ndn::time::seconds(5), [this, neighbor, finalCost] {
-    verifyUpdateSuccess(neighbor, finalCost);
-  });
+  NLSR_LOG_INFO("Updated cost for " << neighbor 
+               << ": " << oldCost << " -> " << finalCost);
 }
 
 
@@ -423,9 +489,9 @@ LinkCostManager::verifyUpdateSuccess(const ndn::Name& neighbor, double expectedC
     NLSR_LOG_WARN("Verification failed: neighbor " << neighbor << " not found");
     return;
   }
-  
+  //触发更新的机制
   double actualCost = adjacent->getLinkCost();
-  if (std::abs(actualCost - expectedCost) > 0.01) {
+  if (std::abs(actualCost - expectedCost) > 0.02) {
     NLSR_LOG_WARN("Cost update verification failed for " << neighbor 
                  << ": expected " << expectedCost << ", actual " << actualCost);
   } else {
@@ -470,7 +536,7 @@ LinkCostManager::generateStatusReport()
     const auto& linkState = pair.second;
     auto avgRtt = linkState.getAverageRtt();
     auto avgRttMs = ndn::time::duration_cast<ndn::time::milliseconds>(avgRtt).count();
-    
+
     NLSR_LOG_INFO("  " << pair.first 
                  << ": status=" << (linkState.status == Adjacent::STATUS_ACTIVE ? "ACTIVE" : "INACTIVE")
                  << ", cost=" << linkState.currentCost 
@@ -711,7 +777,7 @@ double LinkCostManager::calculateReliabilityPerformanceScore(const OutgoingLinkS
       return 0.8;  // 很不可靠
     }
   }
-
+//这个是加了趋势分析的算法函数
 double LinkCostManager::calculateTrendPerformanceScore(const ndn::Name& neighbor)
   {
     auto it = m_outgoingLinks.find(neighbor);
