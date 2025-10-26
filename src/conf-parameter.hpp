@@ -32,7 +32,7 @@
 #include <ndn-cxx/security/certificate-fetcher-direct-fetch.hpp>
 
 #include <optional>
-
+//nlsr.conf默认参数值配置
 namespace nlsr {
 
 enum class SyncProtocol {
@@ -52,9 +52,9 @@ enum {
   LSA_INTEREST_LIFETIME_DEFAULT = 4,
   LSA_INTEREST_LIFETIME_MAX = 60
 };
-
+//2025.10.19修改 设定最小值为1
 enum {
-  ADJ_LSA_BUILD_INTERVAL_MIN = 5,
+  ADJ_LSA_BUILD_INTERVAL_MIN = 1,
   ADJ_LSA_BUILD_INTERVAL_DEFAULT = 10,
   ADJ_LSA_BUILD_INTERVAL_MAX = 30
 };

@@ -43,17 +43,26 @@
 
  class LinkCostManager {
  public:
-   // ✅ 链路指标结构体（为负载感知算法提供完整数据）
-   struct LinkMetrics {
-     ndn::Name neighbor;
-     double originalCost;
-     double currentCost;
-     std::optional<ndn::time::steady_clock::duration> currentRtt;
-     std::optional<uint32_t> timeoutCount;
-     std::optional<ndn::time::steady_clock::time_point> lastSuccessTime;
-     std::vector<ndn::time::steady_clock::duration> rttHistory;
-     Adjacent::Status status;
-   };
+  // ✅ 链路指标结构体（为负载感知算法提供完整数据）
+  struct LinkMetrics {
+    ndn::Name neighbor;
+    double originalCost;
+    double currentCost;
+    std::optional<ndn::time::steady_clock::duration> currentRtt;
+    std::optional<uint32_t> timeoutCount;
+    std::optional<ndn::time::steady_clock::time_point> lastSuccessTime;
+    std::vector<ndn::time::steady_clock::duration> rttHistory;
+    Adjacent::Status status;
+    
+    // === 新增：外部设定的多维度指标 ===
+    std::optional<double> bandwidth;          // Mbps
+    std::optional<double> bandwidthUtil;      // 利用率 0-1
+    std::optional<double> packetLoss;         // 丢包率 0-1
+    std::optional<double> spectrumStrength;   // 频谱强度 dBm
+    
+    // === 新增：多因素预览成本（不影响实际路由）===
+    std::optional<double> multiDimensionalCostPreview;
+  };
 
    // 定义负载感知成本计算回调类型
    using LoadAwareCostCalculator = std::function<double(const ndn::Name&, double, const LinkMetrics&)>;
@@ -93,7 +102,7 @@
      std::deque<RttMeasurement> rttHistory;
      
      //最大保存样本数量
-     static constexpr size_t MAX_RTT_SAMPLES = 3;
+     static constexpr size_t MAX_RTT_SAMPLES = 2;
      
      bool isStable() const {
        return status == Adjacent::STATUS_ACTIVE && 
@@ -137,8 +146,53 @@
      return static_cast<bool>(m_loadAwareCostCalculator); 
    }
 
-   // ✅ 获取链路完整指标
-   std::optional<LinkMetrics> getLinkMetrics(const ndn::Name& neighbor) const;
+  // ✅ 获取链路完整指标
+  std::optional<LinkMetrics> getLinkMetrics(const ndn::Name& neighbor) const;
+
+  // ===== 新增：外部指标管理接口 =====
+  /**
+   * @brief 外部指标结构体（用于nlsrc命令输入）
+   */
+  struct ExternalMetrics {
+    std::optional<double> bandwidth;
+    std::optional<double> bandwidthUtil;
+    std::optional<double> packetLoss;
+    std::optional<double> spectrumStrength;
+    ndn::time::steady_clock::time_point lastUpdate;
+  };
+  
+  /**
+   * @brief 多维度成本计算配置
+   */
+  struct MultiDimensionalCostConfig {
+    double rttWeight = 0.4;
+    double bandwidthWeight = 0.3;
+    double reliabilityWeight = 0.2;
+    double spectrumWeight = 0.1;
+  };
+  
+  /**
+   * @brief 设置邻居的外部指标（通过nlsrc调用）
+   * @note 仅影响预览计算，不影响实际路由
+   */
+  void setExternalMetrics(const ndn::Name& neighbor, const ExternalMetrics& metrics);
+  
+  /**
+   * @brief 获取邻居的完整指标快照（用于nlsrc展示）
+   */
+  std::optional<LinkMetrics> getMetricsSnapshot(const ndn::Name& neighbor) const;
+  
+  /**
+   * @brief 计算多因素预览成本（不应用到实际路由）
+   */
+  double calculateMultiDimensionalCostPreview(const ndn::Name& neighbor) const;
+  
+  /**
+   * @brief 获取当前权重配置
+   */
+  MultiDimensionalCostConfig getMultiDimensionalConfig() const { 
+    return m_multiDimConfig; 
+  }
  
    /**
     * @brief Initialize the manager with current neighbor list
@@ -216,12 +270,28 @@
    // ✅ 添加验证机制
    void verifyUpdateSuccess(const ndn::Name& neighbor, double expectedCost);
  
-   // Timing Safety
-   bool canMeasureNow(const ndn::Name& neighbor) const;
-   ndn::time::steady_clock::time_point calculateSafeMeasurementTime(const ndn::Name& neighbor) const;
- 
-   // Status and Debug
-   void generateStatusReport();
+  // Timing Safety
+  bool canMeasureNow(const ndn::Name& neighbor) const;
+  ndn::time::steady_clock::time_point calculateSafeMeasurementTime(const ndn::Name& neighbor) const;
+
+  // Status and Debug
+  void generateStatusReport();
+
+  // ===== nlsrc命令处理 =====
+  /**
+   * @brief 处理来自nlsrc的set-metrics命令
+   */
+  void handleSetMetricsCommand(const ndn::Interest& interest);
+  
+  /**
+   * @brief 处理来自nlsrc的get-metrics命令
+   */
+  void handleGetMetricsCommand(const ndn::Interest& interest);
+  
+  /**
+   * @brief 发送错误响应
+   */
+  void sendNack(const ndn::Interest& interest);
  
    // NLSR Component References
    ndn::Face& m_face;
@@ -243,7 +313,7 @@
  
    // Configuration Parameters 相关变化阈值参数
 // ✅ 配置参数
-  ndn::time::steady_clock::duration m_measurementInterval = ndn::time::seconds(10);
+  ndn::time::steady_clock::duration m_measurementInterval = ndn::time::seconds(2);
   ndn::time::milliseconds m_measurementTimeout = ndn::time::seconds(1);
   double m_costChangeThreshold = 0.05;
   double m_maxCostMultiplier = 2.0;
@@ -254,8 +324,12 @@
    uint64_t m_costUpdates = 0;
    bool m_loadAwareMode = false;
    
-   // ✅ 负载感知成本计算器
-   LoadAwareCostCalculator m_loadAwareCostCalculator;
+  // ✅ 负载感知成本计算器
+  LoadAwareCostCalculator m_loadAwareCostCalculator;
+  
+  // ===== 新增：外部指标存储 =====
+  std::unordered_map<ndn::Name, ExternalMetrics> m_externalMetrics;
+  MultiDimensionalCostConfig m_multiDimConfig;
  private:
     // ===== ML性能计算核心方法 =====
   /**

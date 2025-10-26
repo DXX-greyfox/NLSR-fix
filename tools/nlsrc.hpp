@@ -98,6 +98,27 @@ private:
   void
   withdrawName(ndn::Name name, bool wantDelete);
 
+  /**
+   * \brief Sets external metrics for a neighbor
+   *
+   * cmd format:
+   *  link-metrics set <neighbor-name> [options]
+   *
+   */
+  void
+  setLinkMetrics(const std::string& neighborName,
+                 const std::map<std::string, std::string>& options);
+
+  /**
+   * \brief Shows link metrics for a neighbor
+   *
+   * cmd format:
+   *  link-metrics show <neighbor-name>
+   *
+   */
+  void
+  showLinkMetrics(const std::string& neighborName);
+
   void
   sendNamePrefixUpdate(const ndn::Name& name,
                        const ndn::Name::Component& verb,

@@ -46,7 +46,16 @@ enum {
   NextHop                     = 143,
   RoutingTable                = 144,
   RoutingTableEntry           = 145,
-  PrefixInfo                  = 146
+  PrefixInfo                  = 146,
+  
+  // Link Cost Manager - External Metrics
+  LinkMetricsCommand          = 210,
+  ExternalMetrics             = 211,
+  Bandwidth                   = 212,
+  BandwidthUtilization        = 213,
+  PacketLoss                  = 214,
+  SpectrumStrength            = 215,
+  MultiDimensionalCost        = 216
 };
 
 } // namespace nlsr::tlv

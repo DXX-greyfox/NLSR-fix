@@ -6,6 +6,7 @@
 
 #include <iomanip>  // 用于std::setprecision
 #include <cmath>    // 用于std::sqrt
+#include <sstream>  // 用于std::ostringstream
 
 namespace nlsr {
 
@@ -44,6 +45,40 @@ LinkCostManager::LinkCostManager(ndn::Face& face, ndn::KeyChain& keyChain,
    },
    [](const auto& name, const auto& reason) {
      NLSR_LOG_ERROR("Failed to register RTT probe prefix: " << reason);
+   });
+
+ // 注册nlsrc命令处理器
+ ndn::Name cmdPrefix("/localhost");
+ cmdPrefix.append("nlsr").append("link-cost-manager");
+ 
+ NLSR_LOG_DEBUG("Registering link-cost-manager command prefix: " << cmdPrefix);
+ 
+ // 处理set-metrics命令
+ ndn::Name setMetricsPrefix = cmdPrefix;
+ setMetricsPrefix.append("set-metrics");
+ m_face.setInterestFilter(setMetricsPrefix,
+   [this](const auto& filter, const auto& interest) {
+     handleSetMetricsCommand(interest);
+   },
+   [](const auto& name) {
+     NLSR_LOG_DEBUG("set-metrics prefix registered: " << name);
+   },
+   [](const auto& name, const auto& reason) {
+     NLSR_LOG_ERROR("Failed to register set-metrics prefix: " << reason);
+   });
+
+ // 处理get-metrics命令
+ ndn::Name getMetricsPrefix = cmdPrefix;
+ getMetricsPrefix.append("get-metrics");
+ m_face.setInterestFilter(getMetricsPrefix,
+   [this](const auto& filter, const auto& interest) {
+     handleGetMetricsCommand(interest);
+   },
+   [](const auto& name) {
+     NLSR_LOG_DEBUG("get-metrics prefix registered: " << name);
+   },
+   [](const auto& name, const auto& reason) {
+     NLSR_LOG_ERROR("Failed to register get-metrics prefix: " << reason);
    });
 }
 
@@ -331,8 +366,8 @@ LinkCostManager::handleRttResponse(const ndn::Name& neighbor, uint32_t seq,
                     << ": performance=" << std::fixed << std::setprecision(3) 
                     << performance << " (RTT=" << rttMs << "ms)");
     }
-    //样本数据收集个数
-    if (linkIt->second.rttHistory.size() >= 3) {
+    //样本数据收集个数，用MAX_RTT_SAMPLES代替
+    if (linkIt->second.rttHistory.size() >= OutgoingLinkState::MAX_RTT_SAMPLES) {
       double newCost = calculateNewCost(neighbor);
       if (shouldUpdateCost(neighbor, newCost)) {
         updateNeighborCost(neighbor, newCost);
@@ -451,7 +486,7 @@ LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCo
   
   // 限流检查
   auto now = ndn::time::steady_clock::now();
-  static constexpr auto MIN_LSA_INTERVAL = ndn::time::seconds(10);
+  static constexpr auto MIN_LSA_INTERVAL = ndn::time::seconds(2);//强制两次LSA触发之间至少间隔5秒
   
   if (now - it->second.lastLsaTriggerTime < MIN_LSA_INTERVAL) {
     NLSR_LOG_TRACE("Rate limiting LSA trigger for " << neighbor);
@@ -817,5 +852,308 @@ double LinkCostManager::calculateTrendPerformanceScore(const ndn::Name& neighbor
     
     return 0.0;
   }
+
+// ===== 新增：外部指标管理功能 =====
+
+void
+LinkCostManager::setExternalMetrics(const ndn::Name& neighbor, const ExternalMetrics& metrics)
+{
+  // ✅ 只验证AdjacencyList（配置文件中是否存在该邻居）
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    NLSR_LOG_WARN("Cannot set external metrics: neighbor " << neighbor 
+                 << " not found in configuration file");
+    return;
+  }
+  
+  // 存储外部指标到独立的map
+  m_externalMetrics[neighbor] = metrics;
+  
+  NLSR_LOG_INFO("External metrics updated for " << neighbor 
+               << " (OriginalCost=" << adjacent->getOriginalLinkCost() << ")");
+}
+
+std::optional<LinkCostManager::LinkMetrics>
+LinkCostManager::getMetricsSnapshot(const ndn::Name& neighbor) const
+{
+  // ✅ 只从AdjacencyList读取（权威数据源，配置文件）
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    return std::nullopt;  // 配置文件中不存在该邻居
+  }
+  
+  LinkMetrics metrics;
+  metrics.neighbor = neighbor;
+  metrics.originalCost = adjacent->getOriginalLinkCost();
+  metrics.currentCost = adjacent->getLinkCost();
+  metrics.status = adjacent->getStatus();
+  
+  // ✅ 从m_externalMetrics读取用户设置（如果有）
+  auto extIt = m_externalMetrics.find(neighbor);
+  if (extIt != m_externalMetrics.end()) {
+    metrics.bandwidth = extIt->second.bandwidth;
+    metrics.bandwidthUtil = extIt->second.bandwidthUtil;
+    metrics.packetLoss = extIt->second.packetLoss;
+    metrics.spectrumStrength = extIt->second.spectrumStrength;
+  }
+  
+  // 计算多维度预览成本（使用默认值或用户设置）
+  double previewCost = calculateMultiDimensionalCostPreview(neighbor);
+  if (previewCost > 0) {
+    metrics.multiDimensionalCostPreview = previewCost;
+  }
+  
+  return metrics;
+}
+
+double
+LinkCostManager::calculateMultiDimensionalCostPreview(const ndn::Name& neighbor) const
+{
+  // ✅ 只从AdjacencyList读取originalCost（权威数据源）
+  auto adjacent = m_adjacencyList.findAdjacent(neighbor);
+  if (adjacent == m_adjacencyList.end()) {
+    NLSR_LOG_DEBUG("Cannot calculate preview cost: neighbor " << neighbor << " not found in AdjacencyList");
+    return -1.0;
+  }
+  double originalCost = adjacent->getOriginalLinkCost();
+  
+  // ===== 1. RTT因子（使用默认值，不读取实际测量）=====
+  double rttFactor = 1.1;  // 默认假设RTT=20ms
+  
+  // ===== 2. 带宽因子（使用默认值或用户设置）=====
+  double bwFactor = 1.3;  // 默认假设利用率=30%
+  auto extIt = m_externalMetrics.find(neighbor);
+  if (extIt != m_externalMetrics.end() && extIt->second.bandwidthUtil) {
+    double util = *extIt->second.bandwidthUtil;
+    if (util <= 0.0) {
+      bwFactor = 1.0;
+    } else if (util >= 1.0) {
+      bwFactor = 2.0;
+    } else {
+      bwFactor = 1.0 + util;
+    }
+  }
+  
+  // ===== 3. 可靠性因子（使用默认值或用户设置）=====
+  double reliabilityFactor = 1.02;  // 默认假设丢包率=1%
+  if (extIt != m_externalMetrics.end() && extIt->second.packetLoss) {
+    double loss = *extIt->second.packetLoss;
+    if (loss <= 0.0) {
+      reliabilityFactor = 1.0;
+    } else if (loss >= 0.5) {
+      reliabilityFactor = 2.0;
+    } else {
+      reliabilityFactor = 1.0 + (loss * 2.0);
+    }
+  }
+  
+  // ===== 4. 频谱因子（使用默认值或用户设置）=====
+  double spectrumFactor = 1.4;  // 默认假设频谱=-50dBm
+  if (extIt != m_externalMetrics.end() && extIt->second.spectrumStrength) {
+    double strength = *extIt->second.spectrumStrength;
+    if (strength >= -30) {
+      spectrumFactor = 1.0;
+    } else if (strength <= -80) {
+      spectrumFactor = 2.0;
+    } else {
+      spectrumFactor = 1.0 + ((-30.0 - strength) / 50.0);
+    }
+  }
+  
+  // ===== 5. 加权融合 =====
+  double compositeFactor = 
+    m_multiDimConfig.rttWeight * rttFactor +
+    m_multiDimConfig.bandwidthWeight * bwFactor +
+    m_multiDimConfig.reliabilityWeight * reliabilityFactor +
+    m_multiDimConfig.spectrumWeight * spectrumFactor;
+  
+  double finalCost = originalCost * compositeFactor;
+  
+  NLSR_LOG_DEBUG("Multi-dimensional cost preview for " << neighbor 
+                << ": originalCost=" << originalCost
+                << ", rttFactor=" << std::fixed << std::setprecision(2) << rttFactor
+                << ", bwFactor=" << bwFactor
+                << ", reliabilityFactor=" << reliabilityFactor
+                << ", spectrumFactor=" << spectrumFactor
+                << ", compositeFactor=" << compositeFactor
+                << ", finalCost=" << finalCost);
+  
+  return std::round(finalCost);
+}
+
+// ===== nlsrc命令处理实现 =====
+
+void
+LinkCostManager::handleSetMetricsCommand(const ndn::Interest& interest)
+{
+  const auto& name = interest.getName();
+  
+  // 解析Interest名称：/localhost/nlsr/link-cost-manager/set-metrics/<neighbor>/[options]
+  // Interest结构固定：[0]=localhost, [1]=nlsr, [2]=link-cost-manager, [3]=set-metrics, [4]=neighbor开始
+  size_t baseSize = 4; // neighbor从第4个组件开始
+  
+  if (name.size() < baseSize + 1) {
+    NLSR_LOG_ERROR("Invalid set-metrics command format");
+    sendNack(interest);
+    return;
+  }
+  
+  // 提取neighbor名称
+  // Interest格式：/<prefix>/nlsr/link-cost-manager/set-metrics/<neighbor-components>/--bandwidth/100/...
+  // 策略：从baseSize开始，遇到以"--"开头的组件就停止
+  ndn::Name neighborName;
+  size_t optionsStart = name.size(); // 默认没有选项
+  
+  for (size_t i = baseSize; i < name.size(); ++i) {
+    std::string comp = name.get(i).toUri();
+    
+    // 检查是否是选项（以"--"或"%2D%2D"开头，NDN可能会编码）
+    if (comp.size() >= 2 && (comp[0] == '-' && comp[1] == '-')) {
+      optionsStart = i;
+      break;
+    }
+    if (comp.size() >= 6 && comp.substr(0, 6) == "%2D%2D") {
+      optionsStart = i;
+      break;
+    }
+    
+    neighborName.append(name.get(i));
+  }
+  
+  if (neighborName.size() == 0) {
+    NLSR_LOG_ERROR("Failed to extract neighbor name from Interest");
+    sendNack(interest);
+    return;
+  }
+  
+  // 解析选项参数
+  ExternalMetrics metrics;
+  metrics.lastUpdate = ndn::time::steady_clock::now();
+  
+  for (size_t i = optionsStart; i + 1 < name.size(); i += 2) {
+    std::string option = name.get(i).toUri();
+    std::string value = name.get(i + 1).toUri();
+    
+    try {
+      if (option == "--bandwidth") {
+        metrics.bandwidth = std::stod(value);
+      }
+      else if (option == "--bandwidth-util") {
+        metrics.bandwidthUtil = std::stod(value);
+      }
+      else if (option == "--packet-loss") {
+        metrics.packetLoss = std::stod(value);
+      }
+      else if (option == "--spectrum") {
+        metrics.spectrumStrength = std::stod(value);
+      }
+    }
+    catch (const std::exception& e) {
+      NLSR_LOG_WARN("Failed to parse option " << option << ": " << e.what());
+    }
+  }
+  
+  // 设置外部指标
+  setExternalMetrics(neighborName, metrics);
+  
+  // 发送成功响应
+  auto data = std::make_shared<ndn::Data>(interest.getName());
+  std::string response = "External metrics updated successfully for " + neighborName.toUri();
+  data->setContent(ndn::encoding::makeStringBlock(ndn::tlv::Content, response));
+  // 缩短新命令响应的Freshness，降低CS缓存影响
+  data->setFreshnessPeriod(ndn::time::milliseconds(100));
+  m_keyChain.sign(*data, m_confParam.getSigningInfo());
+  m_face.put(*data);
+  
+  NLSR_LOG_INFO("Sent set-metrics response for " << neighborName);
+}
+
+void
+LinkCostManager::handleGetMetricsCommand(const ndn::Interest& interest)
+{
+  const auto& name = interest.getName();
+  
+  // 解析Interest名称：/localhost/nlsr/link-cost-manager/get-metrics/<neighbor>
+  // Interest结构固定：[0]=localhost, [1]=nlsr, [2]=link-cost-manager, [3]=get-metrics, [4]=neighbor开始
+  size_t baseSize = 4; // neighbor从第4个组件开始
+  
+  if (name.size() < baseSize + 1) {
+    NLSR_LOG_ERROR("Invalid get-metrics command format");
+    sendNack(interest);
+    return;
+  }
+  
+  // 提取neighbor名称（从baseSize到末尾的所有组件）
+  ndn::Name neighborName;
+  for (size_t i = baseSize; i < name.size(); ++i) {
+    neighborName.append(name.get(i));
+  }
+  
+  // 获取指标快照
+  auto metricsOpt = getMetricsSnapshot(neighborName);
+  if (!metricsOpt) {
+    NLSR_LOG_WARN("Neighbor not found: " << neighborName);
+    sendNack(interest);
+    return;
+  }
+  
+  const auto& metrics = *metricsOpt;
+  
+  // 构建响应内容
+  std::ostringstream response;
+  response << "Neighbor: " << neighborName << "\n";
+  response << "OriginalCost: " << metrics.originalCost << "\n";
+  response << "CurrentCost: " << metrics.currentCost << "\n";
+  
+  // 外部指标
+  if (metrics.bandwidth) {
+    response << "Bandwidth: " << *metrics.bandwidth << "\n";
+  }
+  if (metrics.bandwidthUtil) {
+    response << "BandwidthUtil: " << *metrics.bandwidthUtil << "\n";
+  }
+  if (metrics.packetLoss) {
+    response << "PacketLoss: " << *metrics.packetLoss << "\n";
+  }
+  if (metrics.spectrumStrength) {
+    response << "SpectrumStrength: " << *metrics.spectrumStrength << "\n";
+  }
+  
+  // RTT信息
+  if (metrics.currentRtt) {
+    auto rttMs = ndn::time::duration_cast<ndn::time::milliseconds>(*metrics.currentRtt).count();
+    response << "AverageRTT: " << rttMs << "\n";
+  }
+  
+  // 多维度成本预览
+  if (metrics.multiDimensionalCostPreview) {
+    response << "MultiDimensionalCost: " << *metrics.multiDimensionalCostPreview << "\n";
+  }
+  
+  // 权重配置
+  response << "Weights: " << m_multiDimConfig.rttWeight << ","
+           << m_multiDimConfig.bandwidthWeight << ","
+           << m_multiDimConfig.reliabilityWeight << ","
+           << m_multiDimConfig.spectrumWeight << "\n";
+  
+  // 发送响应
+  auto data = std::make_shared<ndn::Data>(interest.getName());
+  data->setContent(ndn::encoding::makeStringBlock(ndn::tlv::Content, response.str()));
+  data->setFreshnessPeriod(ndn::time::milliseconds(100));
+  m_keyChain.sign(*data, m_confParam.getSigningInfo());
+  m_face.put(*data);
+  
+  NLSR_LOG_INFO("Sent get-metrics response for " << neighborName);
+}
+
+void
+LinkCostManager::sendNack(const ndn::Interest& interest)
+{
+  auto data = std::make_shared<ndn::Data>(interest.getName());
+  data->setContent(ndn::encoding::makeStringBlock(ndn::tlv::Content, "ERROR"));
+  data->setFreshnessPeriod(ndn::time::milliseconds(100));
+  m_keyChain.sign(*data, m_confParam.getSigningInfo());
+  m_face.put(*data);
+}
 
 } // namespace nlsr
