@@ -484,18 +484,6 @@ LinkCostManager::updateNeighborCost(const ndn::Name& neighbor, double rttBasedCo
     return;
   }
   
-  // 限流检查
-  auto now = ndn::time::steady_clock::now();
-  static constexpr auto MIN_LSA_INTERVAL = ndn::time::seconds(2);//强制两次LSA触发之间至少间隔5秒
-  
-  if (now - it->second.lastLsaTriggerTime < MIN_LSA_INTERVAL) {
-    NLSR_LOG_TRACE("Rate limiting LSA trigger for " << neighbor);
-    // 更新成本但不触发LSA
-    adjacent->setLinkCost(finalCost);
-    it->second.currentCost = finalCost;
-    return;
-  }
-  
   // 更新成本
   adjacent->setLinkCost(finalCost);
   it->second.currentCost = finalCost;
@@ -549,7 +537,7 @@ ndn::time::steady_clock::time_point
 LinkCostManager::calculateSafeMeasurementTime(const ndn::Name& neighbor) const
 {
   auto baseInterval = m_measurementInterval;
-  auto randomOffset = ndn::time::milliseconds(ndn::random::generateWord32() % 5000);
+  auto randomOffset = ndn::time::milliseconds(ndn::random::generateWord32() % 500);
   
   return ndn::time::steady_clock::now() + baseInterval + randomOffset;
 }

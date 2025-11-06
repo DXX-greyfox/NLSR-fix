@@ -91,10 +91,7 @@ void RoutingTable::calculate()
   if (m_isRoutingTableCalculating == false) {
     m_isRoutingTableCalculating = true;//开启算法计算标志位
 
-    // ✅ 教学要点：算法优先级设计的考虑
-    // ML自适应算法优先级最高，因为它能学习和适应网络变化
-    // 负载感知算法次之，因为它能动态响应网络负载
-    // 标准算法优先级最低，作为基础备选方案
+    
     if (m_confParam.getMLAdaptiveRouting()) {
       NLSR_LOG_INFO("Using ML-adaptive routing algorithm");
       calculateMLAdaptiveRoutingTable();

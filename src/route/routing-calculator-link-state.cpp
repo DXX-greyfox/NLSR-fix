@@ -26,7 +26,7 @@
 #include "adjacent.hpp"
 #include "logger.hpp"
 #include "nlsr.hpp"
-
+#include "topology.hpp"
 #include <boost/multi_array.hpp>
 
 namespace nlsr {
@@ -359,7 +359,8 @@ calculateLinkStateRoutingPath(NameMap& map, RoutingTable& rt, ConfParameter& con
 
   AdjMatrix matrix = makeAdjMatrix(lsdb, map);
   NLSR_LOG_DEBUG((PrintAdjMatrix{matrix, map}));
-
+  //在建立matrix后，导出拓扑信息到json文件
+  exportTopology(matrix, map, confParam);
   if (confParam.getMaxFacesPerPrefix() == 1) {
     // In the single path case we can simply run Dijkstra's algorithm.
     auto dr = calculateDijkstraPath(matrix, *sourceRouter);
